@@ -1,0 +1,12 @@
+{
+  "name": "firstbank-config",
+  "version": "1.0.0",
+  "description": "By DEV ZIKKY TECH",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

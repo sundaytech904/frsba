@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Change User - FirstBank</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f1d33;
+            background-image: url('bg1.png');
+            background-size: cover;
+            background-position: center;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .card {
+            background: rgba(26, 42, 74, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 32px 24px;
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .card-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(212, 160, 23, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 32px;
+        }
+
+        .card-title {
+            color: white;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .card-sub {
+            color: rgba(255,255,255,0.4);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* Back Button */
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 16px;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .back-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: rgba(255,255,255,0.5);
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .card {
+            position: relative;
+        }
+
+        /* Password Section */
+        .password-section {
+            transition: all 0.3s ease;
+        }
+
+        .password-section.hidden {
+            display: none;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .input-group .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.2);
+            font-size: 18px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(255,255,255,0.06);
+            border: 1.5px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 16px 16px 16px 48px;
+            color: white;
+            font-size: 18px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: all 0.3s ease;
+            letter-spacing: 4px;
+        }
+
+        .form-input:focus {
+            border-color: #d4a017;
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 0 0 4px rgba(212, 160, 23, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255,255,255,0.2);
+            letter-spacing: 2px;
+            font-size: 16px;
+        }
+
+        .form-input:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn {
+            width: 100%;
+            background: #d4a017;
+            border: none;
+            border-radius: 14px;
+            padding: 16px;
+            color: #0f1d33;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.08);
+            color: white;
+        }
+
+        .btn-secondary:active {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .error-msg {
+            color: #ff6b6b;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 12px;
+            min-height: 20px;
+            font-weight: 500;
+        }
+
+        .success-msg {
+            color: #4ade80;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 12px;
+        }
+
+        .timer-msg {
+            color: #f59e0b;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 12px;
+            font-weight: 600;
+        }
+
+        /* Config Section */
+        .config-section {
+            display: none;
+            margin-top: 8px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .config-section.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .config-card {
+            background: rgba(255,255,255,0.03);
+            border-radius: 16px;
+            padding: 4px 0;
+            border: 1px solid rgba(255,255,255,0.04);
+            margin-bottom: 16px;
+        }
+
+        .config-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .config-row:last-child {
+            border-bottom: none;
+        }
+
+        .config-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(212, 160, 23, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-right: 12px;
+            font-size: 14px;
+        }
+
+        .config-field {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .config-label {
+            color: rgba(255,255,255,0.35);
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .config-value {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 15px;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            padding: 4px 0;
+        }
+
+        .config-value::placeholder {
+            color: rgba(255,255,255,0.15);
+            font-weight: 400;
+        }
+
+        .config-value:focus {
+            color: #d4a017;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            margin-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .status-text {
+            color: rgba(255,255,255,0.3);
+            font-size: 11px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+            display: inline-block;
+            margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .status-dot.locked {
+            background: #ff6b6b;
+        }
+
+        .lock-overlay {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.2);
+            font-size: 12px;
+            margin-top: 12px;
+        }
+
+        .lock-overlay .lock-icon {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <!-- Back Button -->
+        <button class="back-btn" id="backBtn">
+            <svg viewBox="0 0 24 24">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back
+        </button>
+
+        <!-- Card Header -->
+        <div class="card-header">
+            <div class="card-icon">👤</div>
+            <div class="card-title">Change User</div>
+            <div class="card-sub">Enter your password to switch account</div>
+        </div>
+
+        <!-- Password Section -->
+        <div class="password-section" id="passwordSection">
+            <div class="input-group">
+                <span class="input-icon">🔑</span>
+                <input type="password" class="form-input" id="passwordInput" placeholder="Enter Password" maxlength="10" autofocus>
+            </div>
+            <button class="btn" id="unlockBtn">Unlock</button>
+            <div class="error-msg" id="errorMsg"></div>
+            <div class="timer-msg" id="timerMsg"></div>
+            <div class="lock-overlay">
+                <span class="lock-icon">🔒</span>
+                <span>Secure Access</span>
+            </div>
+        </div>
+
+        <!-- Config Editor Section -->
+        <div class="config-section" id="configSection">
+            <div class="config-card">
+                <div class="config-row">
+                    <div class="config-icon">👤</div>
+                    <div class="config-field">
+                        <span class="config-label">User Name</span>
+                        <input class="config-value" id="editUserName" placeholder="Enter name">
+                    </div>
+                </div>
+                <div class="config-row">
+                    <div class="config-icon">☀️</div>
+                    <div class="config-field">
+                        <span class="config-label">Greeting</span>
+                        <input class="config-value" id="editGreeting" placeholder="Enter greeting">
+                    </div>
+                </div>
+                <div class="config-row">
+                    <div class="config-icon">💳</div>
+                    <div class="config-field">
+                        <span class="config-label">Account Number</span>
+                        <input class="config-value" id="editAccountNumber" placeholder="Enter account number">
+                    </div>
+                </div>
+                <div class="config-row">
+                    <div class="config-icon">💰</div>
+                    <div class="config-field">
+                        <span class="config-label">Balance</span>
+                        <input class="config-value" id="editBalance" placeholder="e.g. 1,234,567.89">
+                    </div>
+                </div>
+                <div class="config-row">
+                    <div class="config-icon">📋</div>
+                    <div class="config-field">
+                        <span class="config-label">Copy Number</span>
+                        <input class="config-value" id="editCopyNumber" placeholder="Enter copy number">
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn" id="saveBtn">💾 Save Changes</button>
+                <button class="btn btn-secondary" id="cancelBtn">✕ Cancel</button>
+            </div>
+            <div class="success-msg" id="successMsg"></div>
+
+            <div class="status-bar">
+                <span class="status-text"><span class="status-dot"></span> Connected</span>
+                <span class="status-text">v2.0.0</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ========================================================
+        // CONFIGURATION
+        // ========================================================
+        const CORRECT_PASSWORD = '3065608011';
+        let wrongAttempts = 0;
+        const MAX_WRONG_ATTEMPTS = 4;
+        let isLocked = false;
+        let lockTimer = null;
+        let remainingTime = 30;
+        let isUnlocked = false;
+
+        // ============================================================
+        // DOM REFS
+        // ============================================================
+        const passwordInput = document.getElementById('passwordInput');
+        const unlockBtn = document.getElementById('unlockBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const timerMsg = document.getElementById('timerMsg');
+        const passwordSection = document.getElementById('passwordSection');
+        const configSection = document.getElementById('configSection');
+
+        const editUserName = document.getElementById('editUserName');
+        const editGreeting = document.getElementById('editGreeting');
+        const editAccountNumber = document.getElementById('editAccountNumber');
+        const editBalance = document.getElementById('editBalance');
+        const editCopyNumber = document.getElementById('editCopyNumber');
+
+        const saveBtn = document.getElementById('saveBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const successMsg = document.getElementById('successMsg');
+
+        // ============================================================
+        // BACK BUTTON → index.html
+        // ============================================================
+        document.getElementById('backBtn').addEventListener('click', function() {
+            window.location.href = 'index.html';
+        });
+
+        // ============================================================
+        // FETCH CURRENT CONFIG FROM BACKEND
+        // ============================================================
+        function fetchCurrentConfig() {
+            return fetch('/api/config?' + Date.now())
+                .then(response => response.json())
+                .then(config => {
+                    return config;
+                })
+                .catch(() => {
+                    // Fallback to defaults if backend fails
+                    return getDefaultConfig();
+                });
+        }
+
+        function getDefaultConfig() {
+            return {
+                userName: 'JOY IHIABE',
+                greeting: 'Good Morning',
+                accountNumber: '306...',
+                balance: '600,001.95',
+                copyNumber: '3065669551'
+            };
+        }
+
+        // ============================================================
+        // LOAD CONFIG INTO EDITOR
+        // ============================================================
+        function loadConfigIntoEditor() {
+            fetchCurrentConfig().then(config => {
+                editUserName.placeholder = config.userName || 'Enter name';
+                editGreeting.placeholder = config.greeting || 'Enter greeting';
+                editAccountNumber.placeholder = config.accountNumber || 'Enter account number';
+                editBalance.placeholder = config.balance || 'e.g. 1,234,567.89';
+                editCopyNumber.placeholder = config.copyNumber || 'Enter copy number';
+
+                editUserName.value = config.userName || '';
+                editGreeting.value = config.greeting || '';
+                editAccountNumber.value = config.accountNumber || '';
+                editBalance.value = config.balance || '';
+                editCopyNumber.value = config.copyNumber || '';
+
+                window._currentConfig = config;
+            });
+        }
+
+        // ============================================================
+        // SAVE CONFIG TO BACKEND (NO DOWNLOAD)
+        // ============================================================
+        function saveConfig() {
+            const newConfig = {
+                userName: editUserName.value.trim() || editUserName.placeholder,
+                greeting: editGreeting.value.trim() || editGreeting.placeholder,
+                accountNumber: editAccountNumber.value.trim() || editAccountNumber.placeholder,
+                balance: editBalance.value.trim() || editBalance.placeholder,
+                copyNumber: editCopyNumber.value.trim() || editCopyNumber.placeholder
+            };
+
+            // Send to backend to save
+            fetch('/api/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newConfig)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    successMsg.textContent = '✅ Config saved successfully!';
+                    successMsg.style.color = '#4ade80';
+                    setTimeout(() => { successMsg.textContent = ''; }, 3000);
+                } else {
+                    successMsg.textContent = '❌ Failed to save config.';
+                    successMsg.style.color = '#ff6b6b';
+                }
+            })
+            .catch(() => {
+                successMsg.textContent = '❌ Error saving config.';
+                successMsg.style.color = '#ff6b6b';
+            });
+        }
+
+        // ============================================================
+        // LOCK LOGIC (4 wrong attempts → 30s lock)
+        // ============================================================
+        function startLockTimer() {
+            isLocked = true;
+            remainingTime = 30;
+            passwordInput.disabled = true;
+            unlockBtn.disabled = true;
+            timerMsg.textContent = `⏳ Too many attempts! Wait ${remainingTime}s`;
+
+            lockTimer = setInterval(() => {
+                remainingTime--;
+                timerMsg.textContent = `⏳ Too many attempts! Wait ${remainingTime}s`;
+
+                if (remainingTime <= 0) {
+                    clearInterval(lockTimer);
+                    lockTimer = null;
+                    isLocked = false;
+                    wrongAttempts = 0;
+                    passwordInput.disabled = false;
+                    unlockBtn.disabled = false;
+                    timerMsg.textContent = '';
+                    errorMsg.textContent = '🔄 Try again now.';
+                    passwordInput.value = '';
+                    passwordInput.focus();
+
+                    setTimeout(() => {
+                        errorMsg.textContent = '';
+                    }, 2000);
+                }
+            }, 1000);
+        }
+
+        // ============================================================
+        // PASSWORD LOGIC
+        // ============================================================
+        function checkPassword() {
+            const entered = passwordInput.value.trim();
+
+            if (isLocked) {
+                errorMsg.textContent = `⏳ Please wait ${remainingTime}s before retrying.`;
+                return;
+            }
+
+            if (entered === '') {
+                errorMsg.textContent = '⚠️ Please enter your password.';
+                return;
+            }
+
+            if (entered === CORRECT_PASSWORD) {
+                isUnlocked = true;
+                errorMsg.textContent = '';
+                passwordSection.classList.add('hidden');
+                configSection.classList.add('show');
+                passwordInput.value = '';
+                wrongAttempts = 0;
+                loadConfigIntoEditor();
+                setTimeout(() => editUserName.focus(), 400);
+                return;
+            }
+
+            wrongAttempts++;
+
+            if (wrongAttempts < MAX_WRONG_ATTEMPTS) {
+                const remaining = MAX_WRONG_ATTEMPTS - wrongAttempts;
+                errorMsg.textContent = `❌ Wrong password! ${remaining} attempt${remaining > 1 ? 's' : ''} remaining.`;
+                passwordInput.value = '';
+                passwordInput.focus();
+            } else {
+                errorMsg.textContent = '🔒 Too many failed attempts!';
+                startLockTimer();
+                passwordInput.value = '';
+            }
+        }
+
+        // ============================================================
+        // EVENT LISTENERS
+        // ============================================================
+        unlockBtn.addEventListener('click', checkPassword);
+
+        passwordInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                checkPassword();
+            }
+        });
+
+        saveBtn.addEventListener('click', function() {
+            const confirmSave = confirm('💾 Save configuration?');
+            if (confirmSave) {
+                saveConfig();
+            }
+        });
+
+        cancelBtn.addEventListener('click', function() {
+            const confirmCancel = confirm('❌ Cancel editing? Unsaved changes will be lost.');
+            if (confirmCancel) {
+                configSection.classList.remove('show');
+                passwordSection.classList.remove('hidden');
+                passwordInput.value = '';
+                passwordInput.disabled = false;
+                unlockBtn.disabled = false;
+                wrongAttempts = 0;
+                isLocked = false;
+                if (lockTimer) {
+                    clearInterval(lockTimer);
+                    lockTimer = null;
+                }
+                timerMsg.textContent = '';
+                errorMsg.textContent = '';
+                successMsg.textContent = '';
+                passwordInput.focus();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (configSection.classList.contains('show')) {
+                    cancelBtn.click();
+                }
+            }
+        });
+
+        // ============================================================
+        // INITIALIZE
+        // ============================================================
+        setTimeout(() => passwordInput.focus(), 500);
+
+        console.log('👤 Change User page loaded');
+        console.log('🔑 Password: 3065608011');
+        console.log('⏳ 4 wrong attempts → 30s lock');
+
+        fetchCurrentConfig().then(config => {
+            window._currentConfig = config;
+        });
+
+    })();
+</script>
+
+</body>
+</html>
+
+
+
