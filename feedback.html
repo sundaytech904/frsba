@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Feedback - FirstBank</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background-color: #1a2a40;
+            background-image: url('bg1.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Background pattern */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 50%),
+                linear-gradient(225deg, rgba(255,255,255,0.02) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            width: 100%;
+            max-width: 360px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #f0a500;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 24px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 18px;
+            font-weight: 400;
+            color: #ffffff;
+            opacity: 0.9;
+        }
+
+        .loading-sub {
+            font-size: 14px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 8px;
+        }
+
+        .redirect-btn {
+            display: block;
+            width: 100%;
+            max-width: 280px;
+            margin: 24px auto 0;
+            background-color: #f0a500;
+            color: #000000;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            padding: 16px 0;
+            border-radius: 32px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            transition: opacity 0.2s ease;
+        }
+
+        .redirect-btn:active {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Redirecting to Feedback Form...</div>
+        <div class="loading-sub">Please wait a moment</div>
+        <a href="https://forms.office.com/pages/responsepage.aspx?id=nmyq8PprnkiM76_DhOhzPJIdo6srg-9Gg_M8YTUzbsdUOUkzREszOTVMWUVaNVFOOVcxWFlYSkNFNy4u&route=shorturl" 
+           class="redirect-btn" 
+           target="_blank"
+           id="feedbackLink">
+            Open Feedback Form
+        </a>
+    </div>
+
+    <script>
+        (function() {
+            const FEEDBACK_URL = 'https://forms.office.com/pages/responsepage.aspx?id=nmyq8PprnkiM76_DhOhzPJIdo6srg-9Gg_M8YTUzbsdUOUkzREszOTVMWUVaNVFOOVcxWFlYSkNFNy4u&route=shorturl';
+
+            // Auto-redirect after 1.5 seconds
+            setTimeout(function() {
+                window.location.href = FEEDBACK_URL;
+            }, 1500);
+
+            // Also allow manual click if auto-redirect fails
+            document.getElementById('feedbackLink').addEventListener('click', function(e) {
+                // The link already has target="_blank", so it will open in a new tab
+                // We don't need to prevent default
+            });
+
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>FirstBank - Beneficiary Management</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #e8eaed;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    overflow: hidden;
+    height: 100vh;
+  }
+  
+  .fb-container {
+    width: 100%;
+    max-width: 400px;
+    height: 100vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: #e8eaed;
+    overflow: hidden;
+  }
+
+  /* ===== LOADING OVERLAY ===== */
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background-color: #1a2a40;
+    background-image: url('bg1.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 80px;
+    overflow: hidden;
+  }
+
+  .loading-overlay.show {
+    display: flex;
+  }
+
+  .loading-overlay .logo-container {
+    margin-bottom: 120px;
+    text-align: center;
+  }
+
+  .loading-overlay .logo-img {
+    width: 160px;
+    height: auto;
+    display: block;
+  }
+
+  .loading-overlay .loader-container {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .loading-overlay .outer-circle {
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+  }
+
+  .loading-overlay .progress-ring {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+  }
+
+  .loading-overlay .progress-ring svg {
+    transform: rotate(-90deg);
+    width: 180px;
+    height: 180px;
+  }
+
+  .loading-overlay .progress-ring .track {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 5;
+    stroke-linecap: butt;
+  }
+
+  .loading-overlay .progress-ring .progress {
+    fill: none;
+    stroke: #f0a500;
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-dasharray: 565.48;
+    stroke-dashoffset: 565.48;
+    animation: fillProgress 2.2s linear forwards;
+  }
+
+  @keyframes fillProgress {
+    0% { stroke-dashoffset: 565.48; }
+    100% { stroke-dashoffset: 0; }
+  }
+
+  .loading-overlay .center-text {
+    position: absolute;
+    text-align: center;
+    z-index: 2;
+  }
+
+  .loading-overlay .center-text .line1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .loading-overlay .center-text .line2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 998;
+  }
+
+  .sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -85%;
+    width: 85%;
+    max-width: 340px;
+    height: 100%;
+    background-color: #1a2332;
+    z-index: 999;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+    padding-top: 20px;
+  }
+
+  .sidebar.active {
+    left: 0;
+  }
+
+  .sidebar-menu {
+    list-style: none;
+    padding: 0;
+  }
+
+  .sidebar-menu li {
+    display: flex;
+    align-items: center;
+    padding: 16px 24px;
+    cursor: default;
+    transition: background-color 0.2s ease;
+  }
+
+  .sidebar-menu li:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .sidebar-menu li .icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .sidebar-menu li .icon svg {
+    width: 22px;
+    height: 22px;
+    stroke: #ffffff;
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .sidebar-menu li .label {
+    font-size: 17px;
+    font-weight: 400;
+    color: #ffffff;
+  }
+
+  /* ===== TOP SECTION ===== */
+  .top-section {
+    background: linear-gradient(180deg, #0f1d33 0%, #1a2d4a 40%, #2a4060 70%, #3a5470 100%);
+    position: relative;
+    padding: 16px 16px 0;
+    flex-shrink: 0;
+  }
+  
+  /* Abstract shapes in header */
+  .header-shapes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .h-shape {
+    position: absolute;
+    background: rgba(255,255,255,0.03);
+    border-radius: 4px;
+  }
+  .h-shape-1 { width: 80px; height: 100px; top: 5%; left: 10%; transform: rotate(-8deg); }
+  .h-shape-2 { width: 60px; height: 80px; top: 15%; left: 25%; transform: rotate(-5deg); background: rgba(255,255,255,0.02); }
+  .h-shape-3 { width: 100px; height: 120px; top: 8%; left: 60%; transform: rotate(6deg); }
+  .h-shape-4 { width: 70px; height: 90px; top: 20%; left: 75%; transform: rotate(8deg); background: rgba(255,255,255,0.02); }
+  .h-shape-5 { width: 120px; height: 150px; top: 40%; left: -5%; transform: rotate(-10deg); }
+  .h-shape-6 { width: 90px; height: 110px; top: 50%; left: 70%; transform: rotate(7deg); background: rgba(255,255,255,0.015); }
+  
+  /* Nav bar */
+  .nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 10;
+    margin-bottom: 16px;
+  }
+
+  /* Hamburger Button */
+  .hamburger-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    z-index: 1001;
+    position: relative;
+  }
+
+  .hamburger-btn span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background-color: #ffffff;
+    border-radius: 1px;
+    transition: all 0.3s ease;
+  }
+
+  .hamburger-btn.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+
+  .hamburger-btn.active span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .hamburger-btn.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+  }
+
+  .nav-title {
+    color: white;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .nav-title-line2 {
+    display: block;
+  }
+  .nav-placeholder {
+    width: 36px;
+  }
+  
+  /* Carousel - ONLY scrollable element */
+  .carousel-wrap {
+    position: relative;
+    z-index: 10;
+    margin-bottom: 20px;
+  }
+  .carousel-track {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 4px;
+    cursor: grab;
+  }
+  .carousel-track::-webkit-scrollbar {
+    display: none;
+  }
+  .carousel-track:active {
+    cursor: grabbing;
+  }
+  .carousel-card {
+    flex: 0 0 85%;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 14px;
+    padding: 16px 20px;
+    scroll-snap-align: start;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 56px;
+    cursor: default;
+    user-select: none;
+    pointer-events: none;
+  }
+  .carousel-card-text {
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+    pointer-events: none;
+  }
+  
+  /* Dots */
+  .carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+    margin-bottom: 4px;
+    pointer-events: none;
+  }
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transition: all 0.3s ease;
+    pointer-events: none;
+  }
+  .dot.active {
+    background: white;
+    width: 6px;
+    height: 6px;
+  }
+  
+  /* ===== BENEFICIARIES SECTION ===== */
+  .beneficiaries-section {
+    background: #e8eaed;
+    padding: 16px 16px 8px;
+    flex: 1;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    color: #0f1d33;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .section-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .add-btn {
+    color: #0f1d33;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: default;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0.5;
+  }
+  .search-btn {
+    cursor: default;
+    opacity: 0.5;
+  }
+  .search-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke: #0f1d33;
+    stroke-width: 2;
+    fill: none;
+  }
+  
+  /* Beneficiary cards - display only, no interaction */
+  .beneficiary-card {
+    background: white;
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+    cursor: default;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .beneficiary-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #d4a017;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+  .beneficiary-info {
+    flex: 1;
+  }
+  .beneficiary-name {
+    color: #0f1d33;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    margin-bottom: 4px;
+  }
+  .beneficiary-number {
+    color: #8a8a8a;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+  
+  /* ===== BOTTOM NAV ===== */
+  .bottom-nav {
+    background: #1a2d4a;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 8px 0 12px;
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: opacity 0.2s ease;
+  }
+  .nav-item:active {
+    opacity: 0.7;
+  }
+  .nav-item svg {
+    width: 24px;
+    height: 24px;
+    stroke: rgba(255,255,255,0.5);
+    stroke-width: 1.5;
+    fill: none;
+  }
+  .nav-item.active svg {
+    stroke: #d4a017;
+    fill: #d4a017;
+  }
+  .nav-item.active .nav-label {
+    color: #d4a017;
+  }
+  .nav-label {
+    color: rgba(255,255,255,0.5);
+    font-size: 10px;
+    font-weight: 500;
+  }
+  .nav-item.active {
+    position: relative;
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 3px;
+    background: #d4a017;
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== LOADING OVERLAY ===== -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="logo-container">
+    <img src="flogo.svg" alt="FirstBank" class="logo-img" onerror="this.style.display='none';">
+  </div>
+  <div class="loader-container">
+    <div class="outer-circle"></div>
+    <div class="progress-ring">
+      <svg viewBox="0 0 180 180">
+        <circle class="track" cx="90" cy="90" r="90" stroke-dasharray="565.48" stroke-dashoffset="0"></circle>
+        <circle class="progress" cx="90" cy="90" r="90"></circle>
+      </svg>
+    </div>
+    <div class="center-text">
+      <div class="line1">GETTING</div>
+      <div class="line2">STATEMENT</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SIDEBAR OVERLAY ===== -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ===== SIDEBAR MENU ===== -->
+<nav class="sidebar" id="sidebar">
+  <ul class="sidebar-menu">
+    <li>
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+      </div>
+      <span class="label">Pay Bills</span>
+    </li>
+    <li>
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+      </div>
+      <span class="label">Buy Airtime</span>
+    </li>
+    <li>
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+      </div>
+      <span class="label">Transfer Money</span>
+    </li>
+    <li>
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+      </div>
+      <span class="label">Card Services</span>
+    </li>
+    <li>
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      </div>
+      <span class="label">Beneficiary Management</span>
+    </li>
+    <li>
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      </div>
+      <span class="label">Scheduled Payments</span>
+    </li>
+    <li>
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+      </div>
+      <span class="label">Link NIN</span>
+    </li>
+    <li>
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+      </div>
+      <span class="label">Feedback</span>
+    </li>
+    <li>
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </div>
+      <span class="label">Settings</span>
+    </li>
+    <li>
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      </div>
+      <span class="label">Logout</span>
+    </li>
+  </ul>
+</nav>
+
+<div class="fb-container">
+  <!-- ===== TOP SECTION ===== -->
+  <div class="top-section">
+    <!-- Abstract shapes -->
+    <div class="header-shapes">
+      <div class="h-shape h-shape-1"></div>
+      <div class="h-shape h-shape-2"></div>
+      <div class="h-shape h-shape-3"></div>
+      <div class="h-shape h-shape-4"></div>
+      <div class="h-shape h-shape-5"></div>
+      <div class="h-shape h-shape-6"></div>
+    </div>
+    
+    <!-- Nav Bar -->
+    <div class="nav-bar">
+      <button class="hamburger-btn" id="hamburgerBtn">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="nav-title">
+        Beneficiary<br><span class="nav-title-line2">Management</span>
+      </div>
+      <div class="nav-placeholder"></div>
+    </div>
+    
+    <!-- Carousel - ONLY scrollable element -->
+    <div class="carousel-wrap">
+      <div class="carousel-track" id="carouselTrack">
+        <div class="carousel-card">
+          <div class="carousel-card-text">Transfer To FirstBank</div>
+        </div>
+        <div class="carousel-card">
+          <div class="carousel-card-text">Transfer To Other Banks</div>
+        </div>
+        <div class="carousel-card">
+          <div class="carousel-card-text">Transfer Via Phone Number</div>
+        </div>
+        <div class="carousel-card">
+          <div class="carousel-card-text">Transfer Via Email</div>
+        </div>
+        <div class="carousel-card">
+          <div class="carousel-card-text">Transfer Via QR Code</div>
+        </div>
+      </div>
+      <div class="carousel-dots" id="carouselDots">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ===== BENEFICIARIES SECTION ===== -->
+  <div class="beneficiaries-section">
+    <div class="section-header">
+      <div class="section-title">BENEFICIARIES</div>
+      <div class="section-actions">
+        <div class="add-btn">Add +</div>
+        <div class="search-btn">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+      </div>
+    </div>
+    
+    <div class="beneficiary-card">
+      <div class="beneficiary-avatar">AT</div>
+      <div class="beneficiary-info">
+        <div class="beneficiary-name">ASUKWO THERESA ISAIAH</div>
+        <div class="beneficiary-number"># 3211 2644 30</div>
+      </div>
+    </div>
+    
+    <div class="beneficiary-card">
+      <div class="beneficiary-avatar">OJ</div>
+      <div class="beneficiary-info">
+        <div class="beneficiary-name">OMATIGA JAMES ANEKWU</div>
+        <div class="beneficiary-number"># 3040 6612 40</div>
+      </div>
+    </div>
+    
+    <div class="beneficiary-card">
+      <div class="beneficiary-avatar">UI</div>
+      <div class="beneficiary-info">
+        <div class="beneficiary-name">UDOH ISAIAH ASUKWO</div>
+        <div class="beneficiary-number"># 3001 1503 29</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ===== BOTTOM NAV ===== -->
+  <div class="bottom-nav">
+    <div class="nav-item" data-page="page">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <div class="nav-label">Dashboard</div>
+    </div>
+    <div class="nav-item active" data-page="beneficiary">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <div class="nav-label">Beneficiary</div>
+    </div>
+    <div class="nav-item" data-page="frequent">
+      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <div class="nav-label">Frequent</div>
+    </div>
+    <div class="nav-item" data-page="feedback">
+      <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      <div class="nav-label">Feedback</div>
+    </div>
+    <div class="nav-item" data-page="settings">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <div class="nav-label">Settings</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ============================================================
+    // 1. LOADING OVERLAY FUNCTION
+    // ============================================================
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    let loadingTimeout = null;
+
+    function showLoading(destination) {
+      if (!loadingOverlay) return;
+      
+      loadingOverlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+      
+      const progressCircle = loadingOverlay.querySelector('.progress');
+      if (progressCircle) {
+        progressCircle.style.animation = 'none';
+        void progressCircle.offsetWidth;
+        progressCircle.style.animation = 'fillProgress 2.2s linear forwards';
+      }
+      
+      if (loadingTimeout) {
+        clearTimeout(loadingTimeout);
+      }
+      
+      loadingTimeout = setTimeout(function() {
+        loadingOverlay.classList.remove('show');
+        document.body.style.overflow = '';
+        if (destination) {
+          window.location.href = destination + '.html';
+        }
+        loadingTimeout = null;
+      }, 2200);
+    }
+
+    function navigateTo(page) {
+      if (page) showLoading(page);
+    }
+
+    // ============================================================
+    // 2. SIDEBAR TOGGLE (only hamburger menu)
+    // ============================================================
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+
+    function toggleSidebar() {
+      if (!sidebar || !sidebarOverlay || !hamburgerBtn) return;
+      sidebar.classList.toggle('active');
+      sidebarOverlay.classList.toggle('active');
+      hamburgerBtn.classList.toggle('active');
+      document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+    }
+
+    if (hamburgerBtn) {
+      hamburgerBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleSidebar();
+      });
+    }
+
+    if (sidebarOverlay) {
+      sidebarOverlay.addEventListener('click', function() {
+        if (sidebar && sidebar.classList.contains('active')) toggleSidebar();
+      });
+    }
+
+    // ============================================================
+    // 3. SIDEBAR MENU - Display only (no navigation)
+    // ============================================================
+    document.querySelectorAll('.sidebar-menu li').forEach(item => {
+      item.style.cursor = 'default';
+    });
+
+    // ============================================================
+    // 4. CAROUSEL DOTS UPDATE (visual only)
+    // ============================================================
+    const track = document.getElementById('carouselTrack');
+    const dots = document.querySelectorAll('.dot');
+    const cards = document.querySelectorAll('.carousel-card');
+    
+    function updateDots() {
+      if (!track || !cards.length) return;
+      const scrollLeft = track.scrollLeft;
+      const cardWidth = cards[0].offsetWidth + 10;
+      const activeIndex = Math.round(scrollLeft / cardWidth);
+      dots.forEach((dot, i) => dot.classList.toggle('active', i === activeIndex));
+    }
+    
+    if (track) track.addEventListener('scroll', updateDots);
+
+    // ============================================================
+    // 5. BOTTOM NAV - ONLY interactive elements with redirections
+    // ============================================================
+    document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Remove active class from all nav items
+        document.querySelectorAll('.nav-item').forEach(i => {
+          i.classList.remove('active');
+        });
+        // Add active class to clicked item
+        this.classList.add('active');
+        
+        const page = this.dataset.page;
+        // Navigate to the corresponding HTML file
+        navigateTo(page);
+      });
+    });
+
+    // ============================================================
+    // 6. DISABLE ALL OTHER CLICKS (Add, Search, Beneficiary cards)
+    // ============================================================
+    document.querySelectorAll('.add-btn, .search-btn, .beneficiary-card').forEach(el => {
+      el.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        // Do nothing - just visual display
+      });
+    });
+
+    // ============================================================
+    // 7. ESCAPE KEY - Close sidebar
+    // ============================================================
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && sidebar && sidebar.classList.contains('active')) toggleSidebar();
+    });
+
+  })();
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Frequent Transactions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background-color: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 16px 16px 16px 12px;
+            background-color: #1e2d42;
+            background-image: url('bg1.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 56px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hamburger-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 1001;
+            position: relative;
+            margin-right: 16px;
+        }
+
+        .hamburger-btn span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background-color: #ffffff;
+            border-radius: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger-btn.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger-btn.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        .header-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 0.3px;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 998;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -85%;
+            width: 85%;
+            max-width: 340px;
+            height: 100%;
+            background-color: #1a2332;
+            z-index: 999;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+            padding-top: 20px;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar-menu li {
+            display: flex;
+            align-items: center;
+            padding: 16px 24px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .sidebar-menu li:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-menu li .icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-menu li .icon svg {
+            width: 22px;
+            height: 22px;
+            stroke: #ffffff;
+            fill: none;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .sidebar-menu li .label {
+            font-size: 17px;
+            font-weight: 400;
+            color: #ffffff;
+        }
+
+        /* ===== CONTENT ===== */
+        .content {
+            flex: 1;
+            padding: 20px 16px;
+            overflow-y: auto;
+            padding-bottom: 90px;
+        }
+
+        .card {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            cursor: pointer;
+            display: block;
+            text-decoration: none;
+        }
+
+        .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .card-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 16px;
+            background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .card-text {
+            font-size: 18px;
+            font-weight: 500;
+            color: #ffffff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .card-arrow {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .card-arrow svg {
+            width: 24px;
+            height: 24px;
+            stroke: #ffffff;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .img-fallback {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* ===== BOTTOM NAV ===== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            padding: 10px 0 20px 0;
+            background-color: #1e2d42;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            flex: 1;
+            position: relative;
+        }
+
+        .nav-item .icon-wrapper {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-item svg {
+            width: 26px;
+            height: 26px;
+        }
+
+        .nav-item.inactive svg {
+            stroke: #7a8fa8;
+            fill: none;
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .nav-item.active svg {
+            stroke: #d4a017;
+            fill: none;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .nav-item span {
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        .nav-item.active span {
+            color: #d4a017;
+        }
+
+        .nav-item.inactive span {
+            color: #7a8fa8;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 3px;
+            background-color: #d4a017;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== SIDEBAR OVERLAY ===== -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ===== SIDEBAR MENU ===== -->
+    <nav class="sidebar" id="sidebar">
+        <ul class="sidebar-menu">
+            <li data-page="page">
+                <div class="icon">
+                    <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                </div>
+                <span class="label">Pay Bills</span>
+            </li>
+            <li data-page="airtime">
+                <div class="icon">
+                    <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                </div>
+                <span class="label">Buy Airtime</span>
+            </li>
+            <li data-page="transfer">
+                <div class="icon">
+                    <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                </div>
+                <span class="label">Transfer Money</span>
+            </li>
+            <li data-page="cards">
+                <div class="icon">
+                    <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                </div>
+                <span class="label">Card Services</span>
+            </li>
+            <li data-page="beneficiary">
+                <div class="icon">
+                    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                </div>
+                <span class="label">Beneficiary Management</span>
+            </li>
+            <li data-page="history">
+                <div class="icon">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                </div>
+                <span class="label">Scheduled Payments</span>
+            </li>
+            <li data-page="nin">
+                <div class="icon">
+                    <svg viewBox="0 0 24 24"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                </div>
+                <span class="label">Link NIN</span>
+            </li>
+            <li data-page="feedback">
+                <div class="icon">
+                    <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                </div>
+                <span class="label">Feedback</span>
+            </li>
+            <li data-page="settings">
+                <div class="icon">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                </div>
+                <span class="label">Settings</span>
+            </li>
+            <li data-page="logout">
+                <div class="icon">
+                    <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                </div>
+                <span class="label">Logout</span>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- ===== HEADER ===== -->
+    <div class="header">
+        <button class="hamburger-btn" id="hamburgerBtn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="header-title">Frequent Transactions</div>
+    </div>
+
+    <!-- ===== CONTENT ===== -->
+<div class="content">
+    <!-- Card 1: Frequent Airtime -->
+    <div class="card">
+        <img src="fr1.jpg" alt="Frequent Airtime" class="card-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="img-fallback" style="display: none;">Frequent Airtime</div>
+        <div class="card-overlay">
+            <span class="card-text">Frequent Airtime</span>
+            <div class="card-arrow">
+                <svg viewBox="0 0 24 24">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2: Frequent transfers to FirstBank -->
+    <div class="card">
+        <img src="fr2.jpg" alt="Frequent transfers to FirstBank" class="card-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="img-fallback" style="display: none;">Frequent transfers to FirstBank</div>
+        <div class="card-overlay">
+            <span class="card-text">Frequent transfers to FirstBank</span>
+            <div class="card-arrow">
+                <svg viewBox="0 0 24 24">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 3: Frequent transfers to Other Banks -->
+    <div class="card">
+        <img src="fr3.jpg" alt="Frequent transfers to Other Banks" class="card-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="img-fallback" style="display: none;">Frequent transfers to Other Banks</div>
+        <div class="card-overlay">
+            <span class="card-text">Frequent transfers to Other Banks</span>
+            <div class="card-arrow">
+                <svg viewBox="0 0 24 24">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 4: Frequent Bills -->
+    <div class="card">
+        <img src="fr4.jpg" alt="Frequent Bills" class="card-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="img-fallback" style="display: none;">Frequent Bills</div>
+        <div class="card-overlay">
+            <span class="card-text">Frequent Bills</span>
+            <div class="card-arrow">
+                <svg viewBox="0 0 24 24">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- ===== BOTTOM NAV ===== -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item inactive" data-page="page">
+            <div class="icon-wrapper">
+                <svg viewBox="0 0 24 24">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </div>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="#" class="nav-item inactive" data-page="beneficiary">
+            <div class="icon-wrapper">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+            </div>
+            <span>Beneficiary</span>
+        </a>
+
+        <a href="#" class="nav-item active" data-page="frequent">
+            <div class="icon-wrapper">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+            </div>
+            <span>Frequent</span>
+        </a>
+
+        <a href="#" class="nav-item inactive" data-page="feedback">
+            <div class="icon-wrapper">
+                <svg viewBox="0 0 24 24">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                    <circle cx="12" cy="12" r="0.8" fill="#7a8fa8" stroke="none"></circle>
+                    <circle cx="16" cy="12" r="0.8" fill="#7a8fa8" stroke="none"></circle>
+                    <circle cx="8" cy="12" r="0.8" fill="#7a8fa8" stroke="none"></circle>
+                </svg>
+            </div>
+            <span>Feedback</span>
+        </a>
+
+        <a href="#" class="nav-item inactive" data-page="settings">
+            <div class="icon-wrapper">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+            </div>
+            <span>Settings</span>
+        </a>
+    </nav>
+
+    <script>
+        (function() {
+            // ============================================================
+            // 1. NAVIGATION HELPER
+            // ============================================================
+            function navigateTo(page) {
+                if (page) {
+                    window.location.href = page + '.html';
+                }
+            }
+
+            // ============================================================
+            // 2. SIDEBAR TOGGLE
+            // ============================================================
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const hamburgerBtn = document.getElementById('hamburgerBtn');
+
+            function toggleSidebar() {
+                if (!sidebar || !sidebarOverlay || !hamburgerBtn) return;
+                sidebar.classList.toggle('active');
+                sidebarOverlay.classList.toggle('active');
+                hamburgerBtn.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+            }
+
+            if (hamburgerBtn) {
+                hamburgerBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleSidebar();
+                });
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    if (sidebar && sidebar.classList.contains('active')) {
+                        toggleSidebar();
+                    }
+                });
+            }
+
+            // Close sidebar with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    if (sidebar && sidebar.classList.contains('active')) {
+                        toggleSidebar();
+                    }
+                }
+            });
+
+            // ============================================================
+            // 3. SIDEBAR MENU ITEMS
+            // ============================================================
+            document.querySelectorAll('.sidebar-menu li[data-page]').forEach(item => {
+                item.addEventListener('click', function() {
+                    const page = this.dataset.page;
+                    
+                    if (sidebar && sidebar.classList.contains('active')) {
+                        toggleSidebar();
+                    }
+                    
+                    if (page === 'nin') {
+                        setTimeout(() => {
+                            window.open('https://www.firstbanknigeria.com/home/', '_blank');
+                        }, 300);
+                    } else if (page === 'logout') {
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 300);
+                    } else {
+                        setTimeout(() => {
+                            navigateTo(page);
+                        }, 300);
+                    }
+                });
+            });
+
+            // ============================================================
+            // 4. BOTTOM NAV ITEMS
+            // ============================================================
+            document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    document.querySelectorAll('.nav-item').forEach(i => {
+                        i.classList.remove('active');
+                        i.classList.add('inactive');
+                    });
+                    this.classList.remove('inactive');
+                    this.classList.add('active');
+                    const page = this.dataset.page;
+                    navigateTo(page);
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
+
+

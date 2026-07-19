@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Transaction History</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background-color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 16px 16px 16px 12px;
+            background-image: url('bg1.png');
+            background-color: #1e2d42;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 56px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .back-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: #ffffff;
+            fill: none;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .header-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 0.3px;
+        }
+
+        /* ===== CONTENT ===== */
+        .content {
+            flex: 1;
+            padding: 24px 20px;
+            background-color: #ffffff;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #000000;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .calendar-icon {
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+        }
+
+        .calendar-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: #000000;
+            fill: none;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .no-history {
+            font-size: 18px;
+            font-weight: 400;
+            color: #000000;
+            margin-top: 4px;
+        }
+
+        /* ===== BOTTOM NAV ===== */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            padding: 10px 0 20px 0;
+            background-color: #1e2d42;
+            border-top: none;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: default;
+            text-decoration: none;
+            flex: 1;
+            position: relative;
+            pointer-events: none;
+        }
+
+        .nav-item .icon-wrapper {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-item svg {
+            width: 26px;
+            height: 26px;
+        }
+
+        .nav-item.inactive svg {
+            stroke: #7a8fa8;
+            fill: none;
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .nav-item.active svg {
+            stroke: #d4a017;
+            fill: none;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .nav-item span {
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        .nav-item.active span {
+            color: #d4a017;
+        }
+
+        .nav-item.inactive span {
+            color: #7a8fa8;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 3px;
+            background-color: #d4a017;
+            border-radius: 2px;
+        }
+
+        /* ===== WARNING MODAL ===== */
+        .warning-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background-color: #1a2a40;
+            background-image: url('bg1.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            padding: 24px;
+        }
+
+        .warning-modal.show {
+            display: flex;
+        }
+
+        /* Fallback pattern overlay for warning */
+        .warning-modal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 50%),
+                linear-gradient(225deg, rgba(255,255,255,0.02) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .warning-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .warning-pattern .rect {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.04);
+            border-radius: 2px;
+        }
+
+        .warning-pattern .rect:nth-child(1) { width: 120px; height: 80px; top: 8%; left: 5%; transform: rotate(-15deg); }
+        .warning-pattern .rect:nth-child(2) { width: 80px; height: 60px; top: 12%; left: 25%; transform: rotate(-10deg); }
+        .warning-pattern .rect:nth-child(3) { width: 140px; height: 100px; top: 5%; right: 10%; transform: rotate(12deg); }
+        .warning-pattern .rect:nth-child(4) { width: 100px; height: 70px; top: 25%; right: 5%; transform: rotate(-8deg); }
+        .warning-pattern .rect:nth-child(5) { width: 60px; height: 40px; top: 30%; left: 15%; transform: rotate(20deg); }
+        .warning-pattern .rect:nth-child(6) { width: 90px; height: 50px; top: 35%; left: 5%; transform: rotate(-5deg); }
+        .warning-pattern .rect:nth-child(7) { width: 110px; height: 80px; top: 40%; right: 15%; transform: rotate(15deg); }
+        .warning-pattern .rect:nth-child(8) { width: 70px; height: 50px; top: 55%; left: 10%; transform: rotate(-12deg); }
+        .warning-pattern .rect:nth-child(9) { width: 130px; height: 90px; top: 60%; right: 5%; transform: rotate(8deg); }
+        .warning-pattern .rect:nth-child(10) { width: 80px; height: 60px; top: 70%; left: 20%; transform: rotate(-18deg); }
+        .warning-pattern .rect:nth-child(11) { width: 100px; height: 70px; top: 75%; right: 20%; transform: rotate(5deg); }
+        .warning-pattern .rect:nth-child(12) { width: 60px; height: 40px; top: 85%; left: 5%; transform: rotate(10deg); }
+        .warning-pattern .rect:nth-child(13) { width: 120px; height: 80px; top: 88%; right: 10%; transform: rotate(-15deg); }
+        .warning-pattern .rect:nth-child(14) { width: 50px; height: 35px; top: 15%; right: 30%; transform: rotate(25deg); }
+        .warning-pattern .rect:nth-child(15) { width: 90px; height: 55px; top: 50%; left: 30%; transform: rotate(-20deg); }
+
+        .warning-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            width: 100%;
+            max-width: 360px;
+        }
+
+        .warning-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        .warning-message {
+            font-size: 18px;
+            font-weight: 400;
+            color: #ffffff;
+            margin-bottom: 48px;
+            opacity: 0.95;
+        }
+
+        .warning-btn {
+            display: block;
+            width: 100%;
+            max-width: 280px;
+            margin: 0 auto;
+            background-color: #f0a500;
+            color: #000000;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            padding: 16px 0;
+            border-radius: 32px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            transition: opacity 0.2s ease;
+        }
+
+        .warning-btn:active {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== HEADER ===== -->
+    <div class="header">
+        <a href="page.html" class="back-btn" id="backBtn">
+            <svg viewBox="0 0 24 24">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </a>
+        <div class="header-title">Transaction History</div>
+    </div>
+
+    <!-- ===== CONTENT ===== -->
+    <div class="content">
+        <div class="section-header">
+            <div class="section-title">LAST 20 TRANSACTIONS ONLY</div>
+            <div class="calendar-icon" id="calendarBtn">
+                <svg viewBox="0 0 24 24">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                    <rect x="7" y="14" width="2" height="2" fill="#000000" stroke="none"></rect>
+                    <rect x="11" y="14" width="2" height="2" fill="#000000" stroke="none"></rect>
+                    <rect x="15" y="14" width="2" height="2" fill="#000000" stroke="none"></rect>
+                </svg>
+            </div>
+        </div>
+        <div class="no-history">No transaction history found.</div>
+    </div>
+
+    <!-- ===== BOTTOM NAV (Non-functional) ===== -->
+    <nav class="bottom-nav">
+        <div class="nav-item inactive">
+            <div class="icon-wrapper">
+                <svg viewBox="0 0 24 24">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </div>
+            <span>Dashboard</span>
+        </div>
+
+        <div class="nav-item active">
+            <div class="icon-wrapper">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+            </div>
+            <span>Beneficiary</span>
+        </div>
+
+        <div class="nav-item inactive">
+            <div class="icon-wrapper">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+            </div>
+            <span>Frequent</span>
+        </div>
+
+        <div class="nav-item inactive">
+            <div class="icon-wrapper">
+                <svg viewBox="0 0 24 24">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                    <circle cx="12" cy="12" r="0.8" fill="#7a8fa8" stroke="none"></circle>
+                    <circle cx="16" cy="12" r="0.8" fill="#7a8fa8" stroke="none"></circle>
+                    <circle cx="8" cy="12" r="0.8" fill="#7a8fa8" stroke="none"></circle>
+                </svg>
+            </div>
+            <span>Feedback</span>
+        </div>
+
+        <div class="nav-item inactive">
+            <div class="icon-wrapper">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+            </div>
+            <span>Settings</span>
+        </div>
+    </nav>
+
+    <!-- ===== WARNING MODAL ===== -->
+    <div class="warning-modal" id="warningModal">
+        <!-- Background pattern rectangles -->
+        <div class="warning-pattern">
+            <div class="rect"></div>
+            <div class="rect"></div>
+            <div class="rect"></div>
+            <div class="rect"></div>
+            <div class="rect"></div>
+            <div class="rect"></div>
+            <div class="rect"></div>
+            <div class="rect"></div>
+            <div class="rect"></div>
+            <div class="rect"></div>
+            <div class="rect"></div>
+            <div class="rect"></div>
+            <div class="rect"></div>
+            <div class="rect"></div>
+            <div class="rect"></div>
+        </div>
+
+        <div class="warning-content">
+            <h1 class="warning-title">Warning</h1>
+            <p class="warning-message">Lost Internet Connection</p>
+            <button class="warning-btn" id="warningOkBtn">OK</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ===== WARNING MODAL =====
+            const warningModal = document.getElementById('warningModal');
+            const warningOkBtn = document.getElementById('warningOkBtn');
+            const calendarBtn = document.getElementById('calendarBtn');
+
+            // Open warning modal when calendar icon is clicked
+            calendarBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                warningModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            });
+
+            // Close warning modal when OK is clicked
+            warningOkBtn.addEventListener('click', function() {
+                warningModal.classList.remove('show');
+                document.body.style.overflow = '';
+            });
+
+            // Close warning modal when tapping outside content (on the overlay)
+            warningModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    warningModal.classList.remove('show');
+                    document.body.style.overflow = '';
+                }
+            });
+
+            // Close with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    warningModal.classList.remove('show');
+                    document.body.style.overflow = '';
+                }
+            });
+
+            // ===== BACK BUTTON =====
+            document.getElementById('backBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = 'page.html';
+            });
+
+            // ===== BOTTOM NAV - DO NOTHING =====
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Do nothing - intentionally disabled
+                });
+            });
+
+        })();
+    </script>
+</body>
+</html>
+

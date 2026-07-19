@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>FirstBank - Change Transaction PIN</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+  }
+  
+  .fb-container {
+    width: 100%;
+    max-width: 400px;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+  }
+  
+  /* ===== TOP SECTION ===== */
+  .top-section {
+    background: linear-gradient(180deg, #0f1d33 0%, #1a2d4a 40%, #2a4060 70%, #3a5470 100%);
+    position: relative;
+    padding: 16px 16px 0;
+    overflow: hidden;
+  }
+  
+  /* Abstract shapes in header */
+  .header-shapes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .h-shape {
+    position: absolute;
+    background: rgba(255,255,255,0.03);
+    border-radius: 4px;
+  }
+  .h-shape-1 { width: 80px; height: 100px; top: 5%; left: 10%; transform: rotate(-8deg); }
+  .h-shape-2 { width: 60px; height: 80px; top: 15%; left: 25%; transform: rotate(-5deg); background: rgba(255,255,255,0.02); }
+  .h-shape-3 { width: 100px; height: 120px; top: 8%; left: 60%; transform: rotate(6deg); }
+  .h-shape-4 { width: 70px; height: 90px; top: 20%; left: 75%; transform: rotate(8deg); background: rgba(255,255,255,0.02); }
+  .h-shape-5 { width: 120px; height: 150px; top: 40%; left: -5%; transform: rotate(-10deg); }
+  .h-shape-6 { width: 90px; height: 110px; top: 50%; left: 70%; transform: rotate(7deg); background: rgba(255,255,255,0.015); }
+  
+  /* Nav bar */
+  .nav-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+    z-index: 10;
+    margin-bottom: 16px;
+  }
+  .nav-back {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+  }
+  .nav-back svg {
+    width: 24px;
+    height: 24px;
+    stroke: white;
+    stroke-width: 2;
+    fill: none;
+  }
+  .nav-title {
+    color: white;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  
+  /* ===== FORM SECTION ===== */
+  .form-section {
+    background: #ffffff;
+    padding: 40px 24px 24px;
+    flex: 1;
+  }
+  
+  .page-title {
+    color: #1a1a1a;
+    font-size: 26px;
+    font-weight: 400;
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  
+  .form-group {
+    margin-bottom: 36px;
+  }
+  .form-input {
+    width: 100%;
+    border: none;
+    border-bottom: 1.5px solid #b0b0b0;
+    padding: 12px 0;
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    color: #1a1a1a;
+    outline: none;
+    background: transparent;
+    transition: border-color 0.2s ease;
+    letter-spacing: 2px;
+  }
+  .form-input::placeholder {
+    color: #a0a0a0;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+  }
+  .form-input:focus {
+    border-bottom-color: #d4a017;
+  }
+  
+  .save-btn {
+    width: 100%;
+    background: #e8d5a0;
+    border: none;
+    border-radius: 30px;
+    padding: 16px;
+    color: #8a8a8a;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    margin-top: 24px;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s ease;
+  }
+  .save-btn:active {
+    transform: scale(0.98);
+  }
+  .save-btn.active {
+    background: #d4a017;
+    color: white;
+  }
+</style>
+</head>
+<body>
+
+<div class="fb-container">
+  <!-- ===== TOP SECTION ===== -->
+  <div class="top-section">
+    <!-- Abstract shapes -->
+    <div class="header-shapes">
+      <div class="h-shape h-shape-1"></div>
+      <div class="h-shape h-shape-2"></div>
+      <div class="h-shape h-shape-3"></div>
+      <div class="h-shape h-shape-4"></div>
+      <div class="h-shape h-shape-5"></div>
+      <div class="h-shape h-shape-6"></div>
+    </div>
+    
+    <!-- Nav Bar -->
+    <div class="nav-bar">
+      <a href="settings.html" class="nav-back">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      </a>
+      <div class="nav-title">Change Transaction PIN</div>
+    </div>
+  </div>
+  
+  <!-- ===== FORM SECTION ===== -->
+  <div class="form-section">
+    <div class="page-title">Change Transaction PIN</div>
+    
+    <div class="form-group">
+      <input type="password" class="form-input" placeholder="Current PIN" maxlength="4" id="currentPin">
+    </div>
+    
+    <div class="form-group">
+      <input type="password" class="form-input" placeholder="New PIN" maxlength="4" id="newPin">
+    </div>
+    
+    <div class="form-group">
+      <input type="password" class="form-input" placeholder="Confirm New PIN" maxlength="4" id="confirmPin">
+    </div>
+    
+    <button class="save-btn" id="saveBtn">SAVE</button>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const currentPin = document.getElementById('currentPin');
+    const newPin = document.getElementById('newPin');
+    const confirmPin = document.getElementById('confirmPin');
+    const saveBtn = document.getElementById('saveBtn');
+    
+    function checkForm() {
+      if (currentPin.value.length === 4 && newPin.value.length === 4 && confirmPin.value.length === 4) {
+        saveBtn.classList.add('active');
+        saveBtn.style.background = '#d4a017';
+        saveBtn.style.color = 'white';
+      } else {
+        saveBtn.classList.remove('active');
+        saveBtn.style.background = '#e8d5a0';
+        saveBtn.style.color = '#8a8a8a';
+      }
+    }
+    
+    [currentPin, newPin, confirmPin].forEach(input => {
+      input.addEventListener('input', () => {
+        input.value = input.value.replace(/\\D/g, '').slice(0, 4);
+        checkForm();
+      });
+    });
+    
+    saveBtn.addEventListener('click', () => {
+      if (saveBtn.classList.contains('active')) {
+        if (newPin.value !== confirmPin.value) {
+          alert('New PIN and Confirm PIN do not match!');
+          return;
+        }
+        alert('Transaction PIN changed successfully!');
+        window.location.href = 'settings.html';
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>
+
+

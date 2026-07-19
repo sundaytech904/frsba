@@ -1,0 +1,2126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>FirstBank - Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #e8eaed;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+  }
+
+  .fb-container {
+    width: 100%;
+    max-width: 400px;
+    min-height: 100vh;
+    position: relative;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    background: #e8eaed;
+  }
+
+  /* ===== LOADING OVERLAY ===== */
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background-color: #1a2a40;
+    background-image: url('bg1.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 80px;
+    overflow: hidden;
+  }
+
+  .loading-overlay.show {
+    display: flex;
+  }
+
+  .loading-overlay .logo-container {
+    margin-bottom: 120px;
+    text-align: center;
+  }
+
+  .loading-overlay .logo-img {
+    width: 160px;
+    height: auto;
+    display: block;
+  }
+
+  .loading-overlay .loader-container {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .loading-overlay .outer-circle {
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+  }
+
+  .loading-overlay .progress-ring {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+  }
+
+  .loading-overlay .progress-ring svg {
+    transform: rotate(-90deg);
+    width: 180px;
+    height: 180px;
+  }
+
+  .loading-overlay .progress-ring .track {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 5;
+    stroke-linecap: butt;
+  }
+
+  .loading-overlay .progress-ring .progress {
+    fill: none;
+    stroke: #f0a500;
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-dasharray: 565.48;
+    stroke-dashoffset: 565.48;
+    animation: fillProgress 2.2s linear forwards;
+  }
+
+  @keyframes fillProgress {
+    0% { stroke-dashoffset: 565.48; }
+    100% { stroke-dashoffset: 0; }
+  }
+
+  .loading-overlay .center-text {
+    position: absolute;
+    text-align: center;
+    z-index: 2;
+  }
+
+  .loading-overlay .center-text .line1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .loading-overlay .center-text .line2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ===== HEADER / TOP SECTION ===== */
+  .top-section {
+    background: linear-gradient(180deg, #0f1d33 0%, #1a2d4a 40%, #2a4060 70%, #3a5470 100%);
+    position: relative;
+    padding: 16px 16px 0;
+    overflow: hidden;
+  }
+
+  /* Abstract shapes in header */
+  .header-shapes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .h-shape {
+    position: absolute;
+    background: rgba(255,255,255,0.03);
+    border-radius: 4px;
+  }
+  .h-shape-1 { width: 80px; height: 100px; top: 5%; left: 10%; transform: rotate(-8deg); }
+  .h-shape-2 { width: 60px; height: 80px; top: 15%; left: 25%; transform: rotate(-5deg); background: rgba(255,255,255,0.02); }
+  .h-shape-3 { width: 100px; height: 120px; top: 8%; left: 60%; transform: rotate(6deg); }
+  .h-shape-4 { width: 70px; height: 90px; top: 20%; left: 75%; transform: rotate(8deg); background: rgba(255,255,255,0.02); }
+  .h-shape-5 { width: 120px; height: 150px; top: 40%; left: -5%; transform: rotate(-10deg); }
+  .h-shape-6 { width: 90px; height: 110px; top: 50%; left: 70%; transform: rotate(7deg); background: rgba(255,255,255,0.015); }
+
+  /* Nav bar */
+  .nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 10;
+    margin-bottom: 16px;
+  }
+
+  /* Hamburger Button */
+  .hamburger-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    z-index: 1001;
+    position: relative;
+  }
+
+  .hamburger-btn span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background-color: #ffffff;
+    border-radius: 1px;
+    transition: all 0.3s ease;
+  }
+
+  .hamburger-btn.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+
+  .hamburger-btn.active span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .hamburger-btn.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+  }
+
+  .nav-title {
+    color: white;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .nav-bell {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    transition: background 0.15s ease;
+    position: relative;
+  }
+  .nav-bell:active {
+    background: rgba(255,255,255,0.15);
+  }
+  .nav-bell .bell-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: #ff4444;
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    border: 2px solid #0f1d33;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 998;
+  }
+
+  .sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -85%;
+    width: 85%;
+    max-width: 340px;
+    height: 100%;
+    background-color: #1a2332;
+    z-index: 999;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+    padding-top: 20px;
+  }
+
+  .sidebar.active {
+    left: 0;
+  }
+
+  .sidebar-menu {
+    list-style: none;
+    padding: 0;
+  }
+
+  .sidebar-menu li {
+    display: flex;
+    align-items: center;
+    padding: 16px 24px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .sidebar-menu li:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .sidebar-menu li .icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .sidebar-menu li .icon svg {
+    width: 22px;
+    height: 22px;
+    stroke: #ffffff;
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .sidebar-menu li .label {
+    font-size: 17px;
+    font-weight: 400;
+    color: #ffffff;
+  }
+
+  /* Profile row */
+  .profile-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    position: relative;
+    z-index: 10;
+    margin-bottom: 12px;
+  }
+  .profile-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .profile-avatar svg {
+    width: 28px;
+    height: 28px;
+    opacity: 0.7;
+  }
+  .profile-info {
+    flex: 1;
+    padding-top: 4px;
+  }
+  .profile-greeting {
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .profile-greeting .greeting-name {
+    cursor: pointer;
+    border-bottom: 1px dashed rgba(255,255,255,0.3);
+  }
+  .profile-last-login {
+    color: rgba(255,255,255,0.6);
+    font-size: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+  .profile-last-login .login-date {
+    border-bottom: 1px dashed rgba(255,255,255,0.2);
+  }
+  .profile-tier-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .profile-tier {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: white;
+    font-size: 14px;
+  }
+  .tier-badge {
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tier-badge svg {
+    width: 12px;
+    height: 12px;
+  }
+  .profile-history {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+  }
+
+  /* Account Card */
+  .account-card {
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 16px 18px;
+    margin: 0 0 20px;
+    position: relative;
+    z-index: 10;
+  }
+  .account-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .account-number {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(255,255,255,0.7);
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 1px;
+  }
+  .account-number .account-display {
+    cursor: pointer;
+    border-bottom: 1px dashed rgba(255,255,255,0.2);
+  }
+  .account-copy {
+    cursor: pointer;
+    opacity: 0.7;
+  }
+  .account-link-nin {
+    background: white;
+    color: #1a1a1a;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: transform 0.1s ease;
+  }
+  .account-link-nin:active {
+    transform: scale(0.95);
+  }
+  .account-balance-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .account-balance {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: white;
+    font-size: 22px;
+    font-weight: 600;
+  }
+  .account-balance .balance-amount {
+    cursor: pointer;
+    border-bottom: 1px dashed rgba(255,255,255,0.2);
+  }
+  .naira-symbol {
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .account-eye {
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+  }
+
+  /* ===== PROFILE COMPLETION SECTION ===== */
+  .profile-completion {
+    background: #e8eaed;
+    padding: 20px 16px 8px;
+  }
+  .section-title {
+    color: #0f1d33;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+  }
+
+  /* Services Grid */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px 8px;
+  }
+  .service-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+  .service-item:active {
+    transform: scale(0.95);
+  }
+  .service-icon-wrap {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .service-icon-wrap svg {
+    width: 24px;
+    height: 24px;
+    stroke: #d4a017;
+    stroke-width: 1.8;
+    fill: none;
+  }
+  .service-label {
+    color: #1a1a1a;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+  }
+
+  /* ===== MY STATISTICS ===== */
+  .my-statistics {
+    background: #e8eaed;
+    padding: 16px 16px 8px;
+  }
+  .stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    cursor: pointer;
+  }
+  .stats-title {
+    color: #0f1d33;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .stats-chevron {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+  .stats-chevron svg {
+    width: 20px;
+    height: 20px;
+    stroke: #0f1d33;
+    stroke-width: 2;
+    fill: none;
+  }
+  .stats-chevron.expanded {
+    transform: rotate(180deg);
+  }
+  .stats-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  .stats-content.open {
+    max-height: 200px;
+  }
+  .stats-placeholder {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    color: #8a8a8a;
+    font-size: 13px;
+  }
+  .stats-placeholder p {
+    margin-bottom: 4px;
+  }
+  .stats-placeholder .stats-empty-title {
+    font-size: 14px;
+    color: #0f1d33;
+    font-weight: 600;
+  }
+
+  /* ===== MY ADS ===== */
+  .my-ads {
+    background: #e8eaed;
+    padding: 16px 16px 24px;
+  }
+  .ads-title {
+    color: #0f1d33;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+  }
+
+  .ads-carousel-wrap {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    touch-action: pan-y;
+  }
+  .ads-carousel-track {
+    display: flex;
+    transition: transform 0.5s ease;
+    width: 100%;
+  }
+  .ads-slide {
+    flex: 0 0 100%;
+    width: 100%;
+    padding: 0 4px;
+  }
+  .ad-card {
+    background: #f5e6d3;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/10;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 16px;
+  }
+  .ad-card-2 {
+    background: linear-gradient(135deg, #0f1d33 0%, #1a3a5c 100%);
+  }
+  .ad-card-3 {
+    background: linear-gradient(135deg, #d4a017 0%, #e6c050 100%);
+  }
+  .ad-card-4 {
+    background: linear-gradient(135deg, #1a5c3a 0%, #2a8c5a 100%);
+  }
+  .ad-card-5 {
+    background: linear-gradient(135deg, #5c1a3a 0%, #8c2a5a 100%);
+  }
+  .ad-card-6 {
+    background: linear-gradient(135deg, #3a1a5c 0%, #5a2a8c 100%);
+  }
+  .ad-card-7 {
+    background: linear-gradient(135deg, #5c3a1a 0%, #8c5a2a 100%);
+  }
+  .ad-card-8 {
+    background: linear-gradient(135deg, #1a5c5c 0%, #2a8c8c 100%);
+  }
+  .ad-card-9 {
+    background: linear-gradient(135deg, #5c1a1a 0%, #8c2a2a 100%);
+  }
+
+  .ad-top-right-logo {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ad-top-right-logo img {
+    height: 24px;
+    width: auto;
+    display: block;
+    filter: brightness(0) invert(1);
+  }
+  .ad-top-right-logo span {
+    color: #0f1d33;
+    font-size: 10px;
+    font-weight: 700;
+    font-style: italic;
+  }
+  .ad-card-2 .ad-top-right-logo span,
+  .ad-card-3 .ad-top-right-logo span {
+    color: white;
+  }
+  .ad-card-2 .ad-top-right-logo img,
+  .ad-card-3 .ad-top-right-logo img {
+    filter: brightness(0) invert(1);
+  }
+  
+  .ad-top-right-logo img {
+  filter: none !important;
+}
+
+  .ad-headline {
+    color: #0f1d33;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.3;
+    max-width: 60%;
+    margin-top: 8px;
+  }
+  .ad-card-2 .ad-headline,
+  .ad-card-3 .ad-headline {
+    color: white;
+  }
+  .ad-subtext {
+    color: #5a5a5a;
+    font-size: 10px;
+    margin-top: 6px;
+    max-width: 55%;
+  }
+  .ad-card-2 .ad-subtext,
+  .ad-card-3 .ad-subtext {
+    color: rgba(255,255,255,0.8);
+  }
+  .ad-bullets {
+    margin-top: 8px;
+  }
+  .ad-bullet {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #3a3a3a;
+    font-size: 10px;
+    margin-bottom: 3px;
+  }
+  .ad-bullet-dot {
+    width: 5px;
+    height: 5px;
+    background: #0f1d33;
+    border-radius: 1px;
+  }
+  .ad-card-2 .ad-bullet,
+  .ad-card-3 .ad-bullet {
+    color: rgba(255,255,255,0.9);
+  }
+  .ad-card-2 .ad-bullet-dot,
+  .ad-card-3 .ad-bullet-dot {
+    background: white;
+  }
+  .ad-footer-text {
+    color: #5a5a5a;
+    font-size: 9px;
+    margin-top: 8px;
+  }
+  .ad-card-2 .ad-footer-text,
+  .ad-card-3 .ad-footer-text {
+    color: rgba(255,255,255,0.7);
+  }
+  .ad-you-first {
+    position: absolute;
+    bottom: 28px;
+    right: 12px;
+    color: #d4a017;
+    font-size: 11px;
+    font-weight: 600;
+    font-style: italic;
+  }
+  .ad-card-2 .ad-you-first {
+    color: #d4a017;
+  }
+  .ad-card-3 .ad-you-first {
+    color: #0f1d33;
+  }
+
+  /* Decorative bottom strip */
+  .ad-strip {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 18px;
+    background: repeating-linear-gradient(
+      90deg,
+      #d4a017 0px,
+      #d4a017 8px,
+      #0f1d33 8px,
+      #0f1d33 16px,
+      #e74c3c 16px,
+      #e74c3c 24px,
+      #2ecc71 24px,
+      #2ecc71 32px,
+      #3498db 32px,
+      #3498db 40px
+    );
+    opacity: 0.6;
+  }
+
+  .ads-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .ad-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #d4a017;
+    background: transparent;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  .ad-dot.active {
+    background: #d4a017;
+  }
+
+  /* ===== BOTTOM NAV ===== */
+  .bottom-nav {
+    background: #1a2d4a;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 8px 0 12px;
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: transform 0.15s ease;
+  }
+  .nav-item:active {
+    transform: scale(0.92);
+  }
+  .nav-item svg {
+    width: 24px;
+    height: 24px;
+    stroke: rgba(255,255,255,0.5);
+    stroke-width: 1.5;
+    fill: none;
+  }
+  .nav-item.active svg {
+    stroke: #d4a017;
+    fill: #d4a017;
+  }
+  .nav-item.active .nav-label {
+    color: #d4a017;
+  }
+  .nav-label {
+    color: rgba(255,255,255,0.5);
+    font-size: 10px;
+    font-weight: 500;
+  }
+  .nav-item.active {
+    position: relative;
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 3px;
+    background: #d4a017;
+    border-radius: 2px;
+  }
+
+  /* ===== NOTIFICATION MODAL ===== */
+  .notification-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    animation: slideUp 0.3s ease;
+  }
+
+  .notification-modal.show {
+    display: flex;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .notification-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+  }
+
+  .notification-content {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    min-height: 100vh;
+    background: #0f1d33;
+    padding: 0 16px 20px;
+    overflow-y: auto;
+    z-index: 10;
+  }
+
+  .notif-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 16px 0 20px;
+    position: sticky;
+    top: 0;
+    background: #0f1d33;
+    z-index: 5;
+  }
+
+  .notif-close {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .notif-close:active {
+    background: rgba(255,255,255,0.15);
+    transform: scale(0.95);
+  }
+
+  .notif-title {
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .notif-body {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 0;
+    gap: 20px;
+  }
+
+  .notif-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .notif-icon svg {
+    opacity: 0.4;
+  }
+
+  .notif-empty {
+    color: rgba(255,255,255,0.5);
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+  }
+
+  .notif-sub {
+    color: rgba(255,255,255,0.3);
+    font-size: 13px;
+    font-weight: 300;
+    letter-spacing: 0.3px;
+  }
+
+  .notif-welcome {
+    width: 100%;
+    max-width: 320px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: center;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .notif-welcome-text {
+    color: rgba(255,255,255,0.6);
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+  }
+
+  .notif-highlight {
+    color: #d4a017;
+    font-weight: 600;
+  }
+
+  .notif-divider {
+    width: 40px;
+    height: 1px;
+    background: rgba(255,255,255,0.08);
+    margin: 8px auto 0;
+  }
+
+  .notif-welcome-sub {
+    color: rgba(255,255,255,0.3);
+    font-size: 11px;
+    font-weight: 300;
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .notif-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .notif-stat {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 8px;
+    padding: 12px 10px;
+    text-align: center;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .notif-stat-icon {
+    color: rgba(212, 160, 23, 0.3);
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  .notif-stat-value {
+    color: rgba(255,255,255,0.7);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .notif-stat-label {
+    color: rgba(255,255,255,0.25);
+    font-size: 9px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-top: 2px;
+  }
+  
+</style>
+</head>
+<body>
+
+<!-- ===== LOADING OVERLAY ===== -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="logo-container">
+    <img src="flogo.svg" alt="FirstBank" class="logo-img" onerror="this.style.display='none';">
+  </div>
+  <div class="loader-container">
+    <div class="outer-circle"></div>
+    <div class="progress-ring">
+      <svg viewBox="0 0 180 180">
+        <circle class="track" cx="90" cy="90" r="90" stroke-dasharray="565.48" stroke-dashoffset="0"></circle>
+        <circle class="progress" cx="90" cy="90" r="90"></circle>
+      </svg>
+    </div>
+    <div class="center-text">
+      <div class="line1">GETTING</div>
+      <div class="line2">STATEMENT</div>
+    </div>
+  </div>
+</div>
+
+<div class="fb-container">
+  <!-- ===== TOP SECTION ===== -->
+  <div class="top-section">
+    <!-- Abstract shapes -->
+    <div class="header-shapes">
+      <div class="h-shape h-shape-1"></div>
+      <div class="h-shape h-shape-2"></div>
+      <div class="h-shape h-shape-3"></div>
+      <div class="h-shape h-shape-4"></div>
+      <div class="h-shape h-shape-5"></div>
+      <div class="h-shape h-shape-6"></div>
+    </div>
+
+    <!-- Nav Bar -->
+    <div class="nav-bar">
+      <button class="hamburger-btn" id="hamburgerBtn">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="nav-title">Dashboard</div>
+      <div class="nav-bell" id="bellIcon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="bell-badge">3</span>
+      </div>
+    </div>
+
+    <!-- Profile Row -->
+    <div class="profile-row">
+      <div class="profile-avatar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      </div>
+      <div class="profile-info">
+        <div class="profile-greeting">
+          <span id="greetingPrefix">Good Morning</span>,
+          <span class="greeting-name" id="userName">JOY IHIABE</span>
+        </div>
+        <div class="profile-last-login">
+          Last Login <span class="login-date" id="lastLoginDate">15/07/26 16:58</span>
+        </div>
+        <div class="profile-tier-row">
+          <div class="profile-tier">
+            <div class="tier-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#1a2d4a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <span>You're on Tier 3</span>
+          </div>
+          <div class="profile-history" id="historyBtn">
+            <span>HISTORY</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Card -->
+    <div class="account-card">
+      <div class="account-top">
+        <div class="account-number">
+          <span>ACCOUNT # </span>
+          <span class="account-display" id="accountNumber">30XXXXXXXX</span>
+          <span class="account-copy" id="copyBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </span>
+        </div>
+        <button class="account-link-nin" id="ninBtn">Link NIN</button>
+      </div>
+      <div class="account-balance-row">
+        <div class="account-balance">
+          <span class="naira-symbol">&#8358;</span>
+          <span class="balance-amount" id="balanceDisplay">******</span>
+        </div>
+        <div class="account-eye" id="eyeBtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== QUICK SERVICES ===== -->
+  <div class="profile-completion">
+    <div class="section-title">QUICK SERVICES</div>
+
+    <div class="services-grid">
+      <div class="service-item" data-page="transfer.html">
+        <div class="service-icon-wrap">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        </div>
+        <div class="service-label">Transfer</div>
+      </div>
+      <div class="service-item" data-page="airtime.html">
+        <div class="service-icon-wrap">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><path d="M12 18h.01"/><circle cx="12" cy="8" r="2" fill="#d4a017" stroke="none"/></svg>
+        </div>
+        <div class="service-label">Buy Airtime</div>
+      </div>
+      <div class="service-item" data-page="data.html">
+        <div class="service-icon-wrap">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="service-label">Buy Data</div>
+      </div>
+      <div class="service-item" data-page="bills.html">
+        <div class="service-icon-wrap">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <div class="service-label">Pay Bills</div>
+      </div>
+      <div class="service-item" data-page="loans.html">
+        <div class="service-icon-wrap">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <div class="service-label">Loans</div>
+      </div>
+      <div class="service-item" data-page="cards.html">
+        <div class="service-icon-wrap">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        </div>
+        <div class="service-label">Virtual Cards</div>
+      </div>
+      <div class="service-item" data-page="qr.html">
+        <div class="service-icon-wrap">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+        </div>
+        <div class="service-label">QR Payment</div>
+      </div>
+      <div class="service-item" data-page="tap.html">
+        <div class="service-icon-wrap">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+        </div>
+        <div class="service-label">Tap and Pay</div>
+      </div>
+      <div class="service-item" data-page="electricity.html">
+        <div class="service-icon-wrap">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2v4"/><path d="M12 12a4 4 0 0 0 4-4c0-2-1.5-3-4-6-2.5 3-4 4-4 6a4 4 0 0 0 4 4z"/></svg>
+        </div>
+        <div class="service-label">Electricity Bills</div>
+      </div>
+      <div class="service-item" data-page="cable.html">
+        <div class="service-icon-wrap">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <div class="service-label">Cable TV</div>
+      </div>
+      <div class="service-item" data-page="papss.html">
+        <div class="service-icon-wrap">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <div class="service-label">PAPSS</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MY STATISTICS ===== -->
+  <div class="my-statistics">
+    <div class="stats-header" id="statsHeader">
+      <div class="stats-title">MY STATISTICS</div>
+      <div class="stats-chevron" id="statsChevron">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+      </div>
+    </div>
+    <div class="stats-content" id="statsContent">
+      <div class="stats-placeholder">
+        <p class="stats-empty-title">No statistics available</p>
+        <p>Start making transactions to see your spending insights here.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MY ADS ===== -->
+<div class="my-ads">
+  <div class="ads-title">MY ADS</div>
+
+  <div class="ads-carousel-wrap" id="adsCarouselWrap">
+    <div class="ads-carousel-track" id="adsCarouselTrack">
+      <!-- Slide 1 - Light background (cream) -->
+      <div class="ads-slide">
+        <div class="ad-card">
+          <div class="ad-top-right-logo">
+            <img src="flogo.svg" alt="FirstBank" style="height:24px; width:auto; display:block; filter: brightness(0) invert(1);">
+          </div>
+          <div>
+            <div class="ad-headline">Got Bills? Pay Them All with FirstMobile!</div>
+            <div class="ad-subtext">No queues. No stress. Just seamless payments.</div>
+            <div class="ad-bullets">
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Electricity</div>
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Cable TV</div>
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Utilities & more</div>
+            </div>
+            <div class="ad-footer-text">Take control of your bills anytime, anywhere.</div>
+          </div>
+          <div class="ad-you-first">-You First-</div>
+          <div class="ad-strip"></div>
+        </div>
+      </div>
+
+      <!-- Slide 2 - Dark background -->
+      <div class="ads-slide">
+        <div class="ad-card ad-card-2">
+          <div class="ad-top-right-logo">
+            <img src="flogo.svg" alt="FirstBank" style="height:24px; width:auto; display:block; filter: brightness(0) invert(1);">
+          </div>
+          <div>
+            <div class="ad-headline">Save Smart, Earn More with FirstBank!</div>
+            <div class="ad-subtext">Open a savings account today and enjoy competitive interest rates.</div>
+            <div class="ad-bullets">
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>High interest rates</div>
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Zero hidden fees</div>
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Instant access</div>
+            </div>
+            <div class="ad-footer-text">Your future starts with a single deposit.</div>
+          </div>
+          <div class="ad-you-first">-You First-</div>
+          <div class="ad-strip"></div>
+        </div>
+      </div>
+
+      <!-- Slide 3 - Dark background -->
+      <div class="ads-slide">
+        <div class="ad-card ad-card-3">
+          <div class="ad-top-right-logo">
+            <img src="flogo.svg" alt="FirstBank" style="height:24px; width:auto; display:block; filter: brightness(0) invert(1);">
+          </div>
+          <div>
+            <div class="ad-headline">Send Money Instantly with FirstTransfer!</div>
+            <div class="ad-subtext">Transfer to any bank in Nigeria in seconds.</div>
+            <div class="ad-bullets">
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>24/7 availability</div>
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Low transfer fees</div>
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Secure & fast</div>
+            </div>
+            <div class="ad-footer-text">Banking at the speed of life.</div>
+          </div>
+          <div class="ad-you-first">-You First-</div>
+          <div class="ad-strip"></div>
+        </div>
+      </div>
+
+      <!-- Slide 4 - Dark background -->
+      <div class="ads-slide">
+        <div class="ad-card ad-card-4">
+          <div class="ad-top-right-logo">
+            <img src="flogo.svg" alt="FirstBank" style="height:24px; width:auto; display:block; filter: brightness(0) invert(1);">
+          </div>
+          <div>
+            <div class="ad-headline">Get a Loan in Minutes!</div>
+            <div class="ad-subtext">Quick access to funds with minimal documentation.</div>
+            <div class="ad-bullets">
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Personal loans</div>
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Business loans</div>
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Salary advance</div>
+            </div>
+            <div class="ad-footer-text">Financial freedom is just a tap away.</div>
+          </div>
+          <div class="ad-you-first">-You First-</div>
+          <div class="ad-strip"></div>
+        </div>
+      </div>
+
+      <!-- Slide 5 - Dark background -->
+      <div class="ads-slide">
+        <div class="ad-card ad-card-5">
+          <div class="ad-top-right-logo">
+            <img src="flogo.svg" alt="FirstBank" style="height:24px; width:auto; display:block; filter: brightness(0) invert(1);">
+          </div>
+          <div>
+            <div class="ad-headline">Shop Online Safely with FirstBank Cards!</div>
+            <div class="ad-subtext">Virtual cards for all your online transactions.</div>
+            <div class="ad-bullets">
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Instant card creation</div>
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Spending controls</div>
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Fraud protection</div>
+            </div>
+            <div class="ad-footer-text">Secure shopping, zero worries.</div>
+          </div>
+          <div class="ad-you-first">-You First-</div>
+          <div class="ad-strip"></div>
+        </div>
+      </div>
+
+      <!-- Slide 6 - Dark background -->
+      <div class="ads-slide">
+        <div class="ad-card ad-card-6">
+          <div class="ad-top-right-logo">
+            <img src="flogo.svg" alt="FirstBank" style="height:24px; width:auto; display:block; filter: brightness(0) invert(1);">
+          </div>
+          <div>
+            <div class="ad-headline">Invest in Your Future with FirstBank!</div>
+            <div class="ad-subtext">Explore investment opportunities tailored for you.</div>
+            <div class="ad-bullets">
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Fixed deposits</div>
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Mutual funds</div>
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Treasury bills</div>
+            </div>
+            <div class="ad-footer-text">Grow your wealth with confidence.</div>
+          </div>
+          <div class="ad-you-first">-You First-</div>
+          <div class="ad-strip"></div>
+        </div>
+      </div>
+
+      <!-- Slide 7 - Dark background -->
+      <div class="ads-slide">
+        <div class="ad-card ad-card-7">
+          <div class="ad-top-right-logo">
+            <img src="flogo.svg" alt="FirstBank" style="height:24px; width:auto; display:block; filter: brightness(0) invert(1);">
+          </div>
+          <div>
+            <div class="ad-headline">Travel Hassle-Free with FirstBank!</div>
+            <div class="ad-subtext">Get your travel card and forex services instantly.</div>
+            <div class="ad-bullets">
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Multi-currency cards</div>
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Competitive rates</div>
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Global acceptance</div>
+            </div>
+            <div class="ad-footer-text">The world is yours to explore.</div>
+          </div>
+          <div class="ad-you-first">-You First-</div>
+          <div class="ad-strip"></div>
+        </div>
+      </div>
+
+      <!-- Slide 8 - Dark background -->
+      <div class="ads-slide">
+        <div class="ad-card ad-card-8">
+          <div class="ad-top-right-logo">
+            <img src="flogo.svg" alt="FirstBank" style="height:24px; width:auto; display:block; filter: brightness(0) invert(1);">
+          </div>
+          <div>
+            <div class="ad-headline">Protect What Matters with FirstBank Insurance!</div>
+            <div class="ad-subtext">Comprehensive insurance coverage for you and your family.</div>
+            <div class="ad-bullets">
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Life insurance</div>
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Health insurance</div>
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Asset protection</div>
+            </div>
+            <div class="ad-footer-text">Peace of mind, guaranteed.</div>
+          </div>
+          <div class="ad-you-first">-You First-</div>
+          <div class="ad-strip"></div>
+        </div>
+      </div>
+
+      <!-- Slide 9 - Dark background -->
+      <div class="ads-slide">
+        <div class="ad-card ad-card-9">
+          <div class="ad-top-right-logo">
+            <img src="flogo.svg" alt="FirstBank" style="height:24px; width:auto; display:block; filter: brightness(0) invert(1);">
+          </div>
+          <div>
+            <div class="ad-headline">Refer & Earn with FirstBank!</div>
+            <div class="ad-subtext">Invite friends and earn rewards for every successful referral.</div>
+            <div class="ad-bullets">
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Instant rewards</div>
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Unlimited referrals</div>
+              <div class="ad-bullet"><div class="ad-bullet-dot"></div>Easy tracking</div>
+            </div>
+            <div class="ad-footer-text">Share the love, earn together.</div>
+          </div>
+          <div class="ad-you-first">-You First-</div>
+          <div class="ad-strip"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ads-dots" id="adsDots">
+    <div class="ad-dot active" data-index="0"></div>
+    <div class="ad-dot" data-index="1"></div>
+    <div class="ad-dot" data-index="2"></div>
+    <div class="ad-dot" data-index="3"></div>
+    <div class="ad-dot" data-index="4"></div>
+    <div class="ad-dot" data-index="5"></div>
+    <div class="ad-dot" data-index="6"></div>
+    <div class="ad-dot" data-index="7"></div>
+    <div class="ad-dot" data-index="8"></div>
+  </div>
+</div>
+
+  <!-- ===== BOTTOM NAV ===== -->
+  <div class="bottom-nav">
+    <div class="nav-item active" data-page="page.html">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <div class="nav-label">Dashboard</div>
+    </div>
+    <div class="nav-item" data-page="beneficiary.html">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <div class="nav-label">Beneficiary</div>
+    </div>
+    <div class="nav-item" data-page="frequent.html">
+      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <div class="nav-label">Frequent</div>
+    </div>
+    <div class="nav-item" data-page="feedback.html">
+      <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      <div class="nav-label">Feedback</div>
+    </div>
+    <div class="nav-item" data-page="settings.html">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <div class="nav-label">Settings</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SIDEBAR OVERLAY ===== -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ===== SIDEBAR MENU ===== -->
+<nav class="sidebar" id="sidebar">
+  <ul class="sidebar-menu">
+    <li data-page="bills">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+      </div>
+      <span class="label">Pay Bills</span>
+    </li>
+    <li data-page="airtime">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+      </div>
+      <span class="label">Buy Airtime</span>
+    </li>
+    <li data-page="transfer">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+      </div>
+      <span class="label">Transfer Money</span>
+    </li>
+    <li data-page="cards">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+      </div>
+      <span class="label">Card Services</span>
+    </li>
+    <li data-page="beneficiary">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      </div>
+      <span class="label">Beneficiary Management</span>
+    </li>
+    <li data-page="history">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      </div>
+      <span class="label">Scheduled Payments</span>
+    </li>
+    <li data-page="nin">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+      </div>
+      <span class="label">Link NIN</span>
+    </li>
+    <li data-page="feedback">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+      </div>
+      <span class="label">Feedback</span>
+    </li>
+    <li data-page="settings">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </div>
+      <span class="label">Settings</span>
+    </li>
+    <li data-page="logout">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      </div>
+      <span class="label">Logout</span>
+    </li>
+  </ul>
+</nav>
+
+<!-- ===== NOTIFICATION MODAL ===== -->
+<div class="notification-modal" id="notificationModal">
+  <div class="notification-overlay" id="notificationOverlay"></div>
+  <div class="notification-content">
+    <div class="notif-header">
+      <button class="notif-close" id="notifCloseBtn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
+        </svg>
+        Close
+      </button>
+      <span class="notif-title">Notifications</span>
+      <div style="width: 60px;"></div>
+    </div>
+    <div class="notif-body">
+      <div class="notif-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+      </div>
+      <div class="notif-empty">No notifications available</div>
+      <div class="notif-sub">You're all caught up</div>
+      <div class="notif-welcome">
+        <div class="notif-welcome-text">Welcome to <span class="notif-highlight">FirstBank</span></div>
+        <div class="notif-divider"></div>
+        <div class="notif-welcome-sub">Your trusted partner since 1894</div>
+      </div>
+      <div class="notif-stats">
+        <div class="notif-stat"><div class="notif-stat-icon">🏦</div><div class="notif-stat-value">50M+</div><div class="notif-stat-label">Customers</div></div>
+        <div class="notif-stat"><div class="notif-stat-icon">🌍</div><div class="notif-stat-value">10+</div><div class="notif-stat-label">Countries</div></div>
+        <div class="notif-stat"><div class="notif-stat-icon">⭐</div><div class="notif-stat-value">4.7★</div><div class="notif-stat-label">Rating</div></div>
+        <div class="notif-stat"><div class="notif-stat-icon">🔒</div><div class="notif-stat-value">100%</div><div class="notif-stat-label">Secure</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+  (function() {
+    // ============================================================
+    // 1. LOADING OVERLAY FUNCTION
+    // ============================================================
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    let loadingTimeout = null;
+
+    function showLoading(destination) {
+      if (!loadingOverlay) return;
+      
+      loadingOverlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+      
+      const progressCircle = loadingOverlay.querySelector('.progress');
+      if (progressCircle) {
+        progressCircle.style.animation = 'none';
+        void progressCircle.offsetWidth;
+        progressCircle.style.animation = 'fillProgress 2.2s linear forwards';
+      }
+      
+      if (loadingTimeout) {
+        clearTimeout(loadingTimeout);
+      }
+      
+      loadingTimeout = setTimeout(function() {
+        loadingOverlay.classList.remove('show');
+        document.body.style.overflow = '';
+        if (destination) {
+          window.location.href = destination;
+        }
+        loadingTimeout = null;
+      }, 2200);
+    }
+
+    // ============================================================
+    // 2. NAVIGATION HELPER
+    // ============================================================
+    function navigateTo(page) {
+      if (page) {
+        showLoading(page);
+      }
+    }
+
+    // =====================================================
+    // 3. CONFIGURATION (loaded from config.js - DO NOT EDIT HERE)
+    // =====================================================
+    // CONFIG is loaded from config.js file
+
+    // =========================================================
+    const userNameEl = document.getElementById('userName');
+    const greetingEl = document.getElementById('greetingPrefix');
+    const lastLoginEl = document.getElementById('lastLoginDate');
+    const accountNumEl = document.getElementById('accountNumber');
+    const balanceEl = document.getElementById('balanceDisplay');
+    
+    if (userNameEl) userNameEl.textContent = CONFIG.userName;
+    if (greetingEl) greetingEl.textContent = CONFIG.greeting;
+    if (lastLoginEl) lastLoginEl.textContent = CONFIG.lastLogin;
+    if (accountNumEl) accountNumEl.textContent = CONFIG.accountNumber;
+    if (balanceEl) balanceEl.dataset.balance = CONFIG.balance;
+
+    // ============================================================
+    // 5. SIDEBAR TOGGLE
+    // ============================================================
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+
+    function toggleSidebar() {
+      if (!sidebar || !sidebarOverlay || !hamburgerBtn) return;
+      sidebar.classList.toggle('active');
+      sidebarOverlay.classList.toggle('active');
+      hamburgerBtn.classList.toggle('active');
+      document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+    }
+
+    if (hamburgerBtn) {
+      hamburgerBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleSidebar();
+      });
+    }
+
+    if (sidebarOverlay) {
+      sidebarOverlay.addEventListener('click', function() {
+        if (sidebar && sidebar.classList.contains('active')) {
+          toggleSidebar();
+        }
+      });
+    }
+
+    // ============================================================
+    // 6. SIDEBAR MENU ITEMS
+    // ============================================================
+    document.querySelectorAll('.sidebar-menu li[data-page]').forEach(item => {
+      item.addEventListener('click', function() {
+        const page = this.dataset.page;
+        
+        if (sidebar && sidebar.classList.contains('active')) {
+          toggleSidebar();
+        }
+        
+        if (page === 'nin') {
+          setTimeout(() => {
+            window.open('https://www.firstbanknigeria.com/home/', '_blank');
+          }, 300);
+        } else if (page === 'logout') {
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 300);
+        } else {
+          setTimeout(() => {
+            navigateTo(page + '.html');
+          }, 300);
+        }
+      });
+    });
+
+    // ============================================================
+    // 7. SERVICE ITEMS
+    // ============================================================
+    document.querySelectorAll('.service-item[data-page]').forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const page = this.dataset.page;
+        navigateTo(page);
+      });
+    });
+
+    // ============================================================
+    // 8. BOTTOM NAV ITEMS
+    // ============================================================
+    document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.stopPropagation();
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+        const page = this.dataset.page;
+        navigateTo(page);
+      });
+    });
+
+    // ============================================================
+    // 9. NOTIFICATION MODAL
+    // ============================================================
+    const notifModal = document.getElementById('notificationModal');
+    const notifOverlay = document.getElementById('notificationOverlay');
+    const notifCloseBtn = document.getElementById('notifCloseBtn');
+
+    function openNotification() {
+      if (!notifModal) return;
+      notifModal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeNotification() {
+      if (!notifModal) return;
+      notifModal.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    const bellIcon = document.getElementById('bellIcon');
+    if (bellIcon) {
+      bellIcon.addEventListener('click', function(e) {
+        e.stopPropagation();
+        openNotification();
+      });
+    }
+
+    if (notifCloseBtn) {
+      notifCloseBtn.addEventListener('click', closeNotification);
+    }
+    
+    if (notifOverlay) {
+      notifOverlay.addEventListener('click', closeNotification);
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeNotification();
+        if (sidebar && sidebar.classList.contains('active')) {
+          toggleSidebar();
+        }
+      }
+    });
+
+    // ============================================================
+    // 10. HISTORY BUTTON
+    // ============================================================
+    const historyBtn = document.getElementById('historyBtn');
+    if (historyBtn) {
+      historyBtn.addEventListener('click', function() {
+        navigateTo('history.html');
+      });
+    }
+
+    // ============================================================
+    // 11. LINK NIN
+    // ============================================================
+    const ninBtn = document.getElementById('ninBtn');
+    if (ninBtn) {
+      ninBtn.addEventListener('click', function() {
+        window.open('https://www.firstbanknigeria.com/home/', '_blank');
+      });
+    }
+
+    // ============================================================
+    // 12. COPY BUTTON
+    // ============================================================
+    const copyBtn = document.getElementById('copyBtn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', function() {
+        const accountNum = CONFIG.copyNumber || CONFIG.accountNumber;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(accountNum).then(() => {
+            showToast('Account number copied!');
+          }).catch(() => {
+            fallbackCopy(accountNum);
+          });
+        } else {
+          fallbackCopy(accountNum);
+        }
+      });
+    }
+
+    function fallbackCopy(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        showToast('Account number copied!');
+      } catch (e) {
+        alert('Account number: ' + text);
+      }
+      document.body.removeChild(textarea);
+    }
+
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.textContent = message;
+      toast.style.cssText = `
+        position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+        background: rgba(0,0,0,0.8); color: white; padding: 10px 24px;
+        border-radius: 8px; font-size: 14px; z-index: 9999;
+        font-family: 'Inter', sans-serif; transition: opacity 0.3s ease;
+      `;
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 2000);
+    }
+
+    // ============================================================
+    // 13. EYE BUTTON
+    // ============================================================
+    let balanceVisible = false;
+    const balanceDisplay = document.getElementById('balanceDisplay');
+    const eyeBtn = document.getElementById('eyeBtn');
+
+    if (eyeBtn && balanceDisplay) {
+      eyeBtn.addEventListener('click', function() {
+        balanceVisible = !balanceVisible;
+        if (balanceVisible) {
+          balanceDisplay.textContent = balanceDisplay.dataset.balance || '0.00';
+          const eyeSvg = eyeBtn.querySelector('svg');
+          if (eyeSvg) eyeSvg.style.stroke = '#d4a017';
+        } else {
+          balanceDisplay.textContent = '******';
+          const eyeSvg = eyeBtn.querySelector('svg');
+          if (eyeSvg) eyeSvg.style.stroke = 'rgba(255,255,255,0.6)';
+        }
+      });
+    }
+
+    // ============================================================
+    // 14. EDITABLE FIELDS
+    // ============================================================
+    const userNameField = document.getElementById('userName');
+    if (userNameField) {
+      userNameField.addEventListener('click', function() {
+        const newName = prompt('Edit your name:', this.textContent);
+        if (newName !== null && newName.trim() !== '') {
+          this.textContent = newName.trim();
+          CONFIG.userName = newName.trim();
+        }
+      });
+    }
+
+    const greetingField = document.getElementById('greetingPrefix');
+    if (greetingField) {
+      greetingField.addEventListener('click', function() {
+        const newGreeting = prompt('Edit greeting:', this.textContent);
+        if (newGreeting !== null && newGreeting.trim() !== '') {
+          this.textContent = newGreeting.trim();
+          CONFIG.greeting = newGreeting.trim();
+        }
+      });
+    }
+
+    const lastLoginField = document.getElementById('lastLoginDate');
+    if (lastLoginField) {
+      lastLoginField.addEventListener('click', function() {
+        const newDate = prompt('Edit last login date (format: DD/MM/YY HH:MM):', this.textContent);
+        if (newDate !== null && newDate.trim() !== '') {
+          this.textContent = newDate.trim();
+          CONFIG.lastLogin = newDate.trim();
+        }
+      });
+    }
+
+    const accountNumField = document.getElementById('accountNumber');
+    if (accountNumField) {
+      accountNumField.addEventListener('click', function() {
+        const newAccount = prompt('Edit account number:', this.textContent);
+        if (newAccount !== null && newAccount.trim() !== '') {
+          this.textContent = newAccount.trim();
+          CONFIG.accountNumber = newAccount.trim();
+          CONFIG.copyNumber = newAccount.trim();
+        }
+      });
+    }
+
+    if (balanceDisplay) {
+      balanceDisplay.addEventListener('click', function() {
+        const newBalance = prompt('Edit balance (without ₦ symbol, e.g. 1,234,567.89):', this.dataset.balance || '');
+        if (newBalance !== null && newBalance.trim() !== '') {
+          const cleaned = newBalance.trim().replace(/,/g, '');
+          if (!isNaN(cleaned) && cleaned !== '') {
+            const formatted = parseFloat(cleaned).toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            });
+            this.dataset.balance = formatted;
+            CONFIG.balance = formatted;
+            if (balanceVisible) {
+              this.textContent = formatted;
+            }
+          } else {
+            alert('Please enter a valid number.');
+          }
+        }
+      });
+    }
+
+    // ============================================================
+    // 15. TIME-BASED GREETING & REAL-TIME CLOCK
+    // ============================================================
+    function updateGreeting() {
+      const hour = new Date().getHours();
+      let timeGreeting = 'Good Morning';
+      if (hour >= 12 && hour < 17) timeGreeting = 'Good Afternoon';
+      else if (hour >= 17 && hour < 21) timeGreeting = 'Good Evening';
+      else if (hour >= 21 || hour < 5) timeGreeting = 'Good Night';
+      const greetingEl = document.getElementById('greetingPrefix');
+      if (greetingEl) {
+        greetingEl.textContent = timeGreeting;
+        CONFIG.greeting = timeGreeting;
+      }
+    }
+
+    function updateLastLogin() {
+      const now = new Date();
+      const day = String(now.getDate()).padStart(2, '0');
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = String(now.getFullYear()).slice(-2);
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}`;
+      const lastLoginEl = document.getElementById('lastLoginDate');
+      if (lastLoginEl) {
+        lastLoginEl.textContent = formattedDate;
+        CONFIG.lastLogin = formattedDate;
+      }
+    }
+
+    // ============================================================
+    // 16. STATS TOGGLE
+    // ============================================================
+    const statsHeader = document.getElementById('statsHeader');
+    const statsChevron = document.getElementById('statsChevron');
+    const statsContent = document.getElementById('statsContent');
+
+    if (statsHeader) {
+      statsHeader.addEventListener('click', function() {
+        statsChevron.classList.toggle('expanded');
+        statsContent.classList.toggle('open');
+      });
+    }
+
+    // ============================================================
+    // 17. ADS CAROUSEL
+    // ============================================================
+    const track = document.getElementById('adsCarouselTrack');
+    const dots = document.querySelectorAll('.ad-dot');
+    const wrap = document.getElementById('adsCarouselWrap');
+    const totalSlides = 9;
+    let currentIndex = 0;
+    let autoInterval;
+    let isDragging = false;
+    let startX = 0;
+
+    function goToSlide(index) {
+      if (index < 0) index = totalSlides - 1;
+      if (index >= totalSlides) index = 0;
+      currentIndex = index;
+      const translate = -currentIndex * 100;
+      track.style.transform = 'translateX(' + translate + '%)';
+      
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentIndex);
+      });
+    }
+
+    function nextSlide() {
+      goToSlide(currentIndex + 1);
+    }
+
+    function startAuto() {
+      autoInterval = setInterval(nextSlide, 4000);
+    }
+
+    function stopAuto() {
+      clearInterval(autoInterval);
+    }
+
+    startAuto();
+
+    dots.forEach(dot => {
+      dot.addEventListener('click', function() {
+        stopAuto();
+        goToSlide(parseInt(this.dataset.index));
+        startAuto();
+      });
+    });
+
+    // Touch support
+    wrap.addEventListener('touchstart', function(e) {
+      isDragging = true;
+      startX = e.touches[0].clientX;
+      stopAuto();
+    }, { passive: true });
+
+    wrap.addEventListener('touchend', function(e) {
+      if (!isDragging) return;
+      isDragging = false;
+      const endX = e.changedTouches[0].clientX;
+      const diff = startX - endX;
+      
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) {
+          goToSlide(currentIndex + 1);
+        } else {
+          goToSlide(currentIndex - 1);
+        }
+      }
+      startAuto();
+    }, { passive: true });
+
+    // Mouse support
+    wrap.addEventListener('mousedown', function(e) {
+      isDragging = true;
+      startX = e.clientX;
+      stopAuto();
+    });
+
+    wrap.addEventListener('mouseup', function(e) {
+      if (!isDragging) return;
+      isDragging = false;
+      const diff = startX - e.clientX;
+      
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) {
+          goToSlide(currentIndex + 1);
+        } else {
+          goToSlide(currentIndex - 1);
+        }
+      }
+      startAuto();
+    });
+
+    wrap.addEventListener('mouseleave', function() {
+      if (isDragging) {
+        isDragging = false;
+        startAuto();
+      }
+    });
+
+    // ========================================================
+    // 18. INITIALIZE
+    // =========================================================
+    updateGreeting();
+    updateLastLogin();
+
+  })();
+</script>
+
+</body>
+</html>
+
+

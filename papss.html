@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PAPSS - FirstBank</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background-color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 16px 16px 16px 12px;
+            background-image: url('bg1.png');
+            background-color: #1e2d42;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 56px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .back-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: #ffffff;
+            fill: none;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .header-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 0.3px;
+        }
+
+        .content {
+            flex: 1;
+            padding: 24px 20px;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-wrap {
+            width: 80px;
+            height: 80px;
+            background: rgba(212, 160, 23, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .icon-wrap svg {
+            width: 40px;
+            height: 40px;
+            stroke: #d4a017;
+            stroke-width: 1.8;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .page-sub {
+            font-size: 14px;
+            font-weight: 400;
+            color: #6b7a8f;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .warning-btn {
+            display: block;
+            width: 100%;
+            max-width: 280px;
+            margin: 0 auto;
+            background-color: #f0a500;
+            color: #000000;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            padding: 16px 0;
+            border-radius: 32px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            transition: opacity 0.2s ease;
+        }
+
+        .warning-btn:active {
+            opacity: 0.8;
+        }
+
+        .warning-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background-color: #1a2a40;
+            background-image: url('bg1.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            padding: 24px;
+        }
+
+        .warning-modal.show {
+            display: flex;
+        }
+
+        .warning-modal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 50%),
+                linear-gradient(225deg, rgba(255,255,255,0.02) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .warning-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .warning-pattern .rect {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.04);
+            border-radius: 2px;
+        }
+
+        .warning-pattern .rect:nth-child(1) { width: 120px; height: 80px; top: 8%; left: 5%; transform: rotate(-15deg); }
+        .warning-pattern .rect:nth-child(2) { width: 80px; height: 60px; top: 12%; left: 25%; transform: rotate(-10deg); }
+        .warning-pattern .rect:nth-child(3) { width: 140px; height: 100px; top: 5%; right: 10%; transform: rotate(12deg); }
+        .warning-pattern .rect:nth-child(4) { width: 100px; height: 70px; top: 25%; right: 5%; transform: rotate(-8deg); }
+        .warning-pattern .rect:nth-child(5) { width: 60px; height: 40px; top: 30%; left: 15%; transform: rotate(20deg); }
+        .warning-pattern .rect:nth-child(6) { width: 90px; height: 50px; top: 35%; left: 5%; transform: rotate(-5deg); }
+        .warning-pattern .rect:nth-child(7) { width: 110px; height: 80px; top: 40%; right: 15%; transform: rotate(15deg); }
+        .warning-pattern .rect:nth-child(8) { width: 70px; height: 50px; top: 55%; left: 10%; transform: rotate(-12deg); }
+        .warning-pattern .rect:nth-child(9) { width: 130px; height: 90px; top: 60%; right: 5%; transform: rotate(8deg); }
+        .warning-pattern .rect:nth-child(10) { width: 80px; height: 60px; top: 70%; left: 20%; transform: rotate(-18deg); }
+        .warning-pattern .rect:nth-child(11) { width: 100px; height: 70px; top: 75%; right: 20%; transform: rotate(5deg); }
+        .warning-pattern .rect:nth-child(12) { width: 60px; height: 40px; top: 85%; left: 5%; transform: rotate(10deg); }
+        .warning-pattern .rect:nth-child(13) { width: 120px; height: 80px; top: 88%; right: 10%; transform: rotate(-15deg); }
+        .warning-pattern .rect:nth-child(14) { width: 50px; height: 35px; top: 15%; right: 30%; transform: rotate(25deg); }
+        .warning-pattern .rect:nth-child(15) { width: 90px; height: 55px; top: 50%; left: 30%; transform: rotate(-20deg); }
+
+        .warning-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            width: 100%;
+            max-width: 360px;
+        }
+
+        .warning-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        .warning-message {
+            font-size: 18px;
+            font-weight: 400;
+            color: #ffffff;
+            margin-bottom: 12px;
+            opacity: 0.95;
+        }
+
+        .warning-sub {
+            font-size: 14px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 40px;
+        }
+
+        .warning-btn-modal {
+            display: block;
+            width: 100%;
+            max-width: 280px;
+            margin: 0 auto;
+            background-color: #f0a500;
+            color: #000000;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            padding: 16px 0;
+            border-radius: 32px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            transition: opacity 0.2s ease;
+        }
+
+        .warning-btn-modal:active {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="page.html" class="back-btn" id="backBtn">
+            <svg viewBox="0 0 24 24">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </a>
+        <div class="header-title">PAPSS</div>
+    </div>
+
+    <div class="content">
+        <div class="icon-wrap">
+            <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 6v6l4 2"></path>
+            </svg>
+        </div>
+        <div class="page-title">PAPSS</div>
+        <div class="page-sub">Pan-African Payment & Settlement System - Send money across Africa</div>
+        <button class="warning-btn" id="triggerWarningBtn">Continue</button>
+    </div>
+
+    <div class="warning-modal" id="warningModal">
+        <div class="warning-pattern">
+            <div class="rect"></div><div class="rect"></div><div class="rect"></div>
+            <div class="rect"></div><div class="rect"></div><div class="rect"></div>
+            <div class="rect"></div><div class="rect"></div><div class="rect"></div>
+            <div class="rect"></div><div class="rect"></div><div class="rect"></div>
+            <div class="rect"></div><div class="rect"></div><div class="rect"></div>
+        </div>
+        <div class="warning-content">
+            <h1 class="warning-title">Warning</h1>
+            <p class="warning-message">Lost Internet Connection</p>
+            <p class="warning-sub">Try again later - PAPSS transfer failed</p>
+            <button class="warning-btn-modal" id="warningOkBtn">OK</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const warningModal = document.getElementById('warningModal');
+            const warningOkBtn = document.getElementById('warningOkBtn');
+            const triggerBtn = document.getElementById('triggerWarningBtn');
+
+            function openWarningModal() {
+                warningModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeWarningModal() {
+                warningModal.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+
+            triggerBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                openWarningModal();
+            });
+
+            warningOkBtn.addEventListener('click', function() {
+                closeWarningModal();
+            });
+
+            warningModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeWarningModal();
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeWarningModal();
+                }
+            });
+
+            document.getElementById('backBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = 'page.html';
+            });
+        })();
+    </script>
+</body>
+</html>
+
+
